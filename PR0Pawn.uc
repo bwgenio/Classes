@@ -24,6 +24,12 @@ simulated event PostBeginPlay()
 	`log("PR0Pawn is up");
 }
 
+//Checks when pawn is touching floor. Removes damage from falling
+simulated event Landed(Vector HitNormal, Actor FloorActor)
+{
+	SetPhysics(PHYS_Walking);
+}
+
 //Override to make player mesh visible by default
 simulated event BecomeViewTarget(PlayerController PC)
 {
