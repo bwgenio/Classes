@@ -1,19 +1,21 @@
 class PR0Pawn extends UTPawn;
 
 //Position of Y-AXIS to lock the camera to
-var float CamOffsetDistance;
+var(Camera) float CamOffsetDistance;
 //Light that emits from the player
-var PointLightComponent HeroLight;
+var(Light) PointLightComponent HeroLight;
+//Light Radius
+var(Light) int Radius;
 //The color of the emitting light
-var Color LightColor;
+var(Light) Color LightColor;
 
 simulated event PreBeginPlay()
 {
 	super.PreBeginPlay();
 	HeroLight = new(self)class'PointLightComponent';
 	HeroLight.SetLightProperties(5,LightColor);
-	HeroLight.Radius = 150;
-	self.AttachComponent(HeroLight);
+	HeroLight.Radius = 200;
+	AttachComponent(HeroLight);
 }
 
 simulated event PostBeginPlay()

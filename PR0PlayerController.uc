@@ -7,6 +7,16 @@ simulated event PostBeginPlay()
 	`log("PR0PlayerController is up!");
 }
 
+function UpdateLightWhenJump()
+{
+	local PointLightComponent HeroLight;
+
+	foreach Pawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
+	{
+		//HeroLight.Radius
+	}
+}
+
 state PlayerWalking
 {
 ignores SeePlayer, HearNoise, Bump;
