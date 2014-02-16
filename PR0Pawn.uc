@@ -1,5 +1,7 @@
 class PR0Pawn extends UTPawn;
 
+//THIS IS A COMMENT
+
 //Position of Y-AXIS to lock the camera to
 var(Camera) float CamOffsetDistance;
 //Light that emits from the player
