@@ -16,7 +16,7 @@ function UpdateLightWhenJump()
 
 	foreach Pawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
 	{
-		//HeroLight.Radius
+		//HeroLight.Radius += 1
 	}
 }
 
@@ -24,9 +24,9 @@ function UpdateLightWhenJump()
 function OnPossess(SeqAct_Possess inAction)
 {
     if(possessed==TRUE)
-        {
+    {
         ReturnToNormal();
-        }
+    }
     else
     {
         possessed=TRUE;
@@ -52,7 +52,7 @@ function ReturnToNormal()
     EnemyPawn.SetCollisionType(COLLIDE_NoCollision);
     Possess(OldPawn, FALSE);
     OldPawn.SetLocation(EnemyPawn.Location);
-        if(EnemyPawn != None)
+    if(EnemyPawn != None)
     {
         EnemyPawn.Destroy();
     }
