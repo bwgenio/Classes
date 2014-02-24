@@ -2,6 +2,8 @@ class PR0PlayerController extends UTPlayerController;
 
 var Pawn OldPawn;
 var bool possessed, Flying;
+//The range of possession
+var(Ability) float PossessionRange;
 
 simulated event PostBeginPlay()
 {
@@ -16,29 +18,94 @@ function UpdateLightWhenJump()
 
 	foreach Pawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
 	{
-		//HeroLight.Radius += 1
+		HeroLight.Radius += 10;
+	}
+}
+
+exec function Actor GetPossessionTarget()
+{
+	//Pawn's location. The start of the trace
+	local Vector out_Location;
+	//Pawn's rotation (which way the cursor is facing)
+	local Rotator out_Rotation;
+	//The location of the cursor. The end of the trace
+	local Vector CursorLocation;
+	//The line which character will attempt to cast Possession
+	local Vector PossessionLine;
+	//The actor which is hit by possession
+	local Actor HitActor;
+	//Location where the trace hits an actor
+	local Vector HitLocation;
+	//The normal where the trace hits an actor
+	local Vector HitNormal;
+
+	FlushPersistentDebugLines();
+	//Get the pawn's viewpoint (not based on camera)
+	Pawn.GetActorEyesViewPoint(out_Location, out_Rotation);
+	
+	//The cursor's vector is stored in the HUD
+	CursorLocation = PR0HUD(myHUD).WorldCursorOrigin;
+
+	//Force the Y-position to be zero
+	CursorLocation.Y = 0;
+	out_Location.Y = 0;
+	DrawDebugSphere(CursorLocation, 50, 10, 0, 255, 0, true);
+
+	/** The following codes are used to determine the exact line which possession should be applied
+	 *  The steps are as follows:
+	 *  1. Get the line which connects the Player's viewpoint and the cursor
+	 *  2. Normalize that line, so the length of that line is 1
+	 *  3. Multiply by PossessionRange, giving us a line with exact length that we want*/
+	PossessionLine = CursorLocation - out_Location;
+	DrawDebugLine(out_Location, CursorLocation, 0, 255, 0, true);
+
+	CursorLocation = out_Location + (PossessionLine * PossessionRange) / VSize(PossessionLine);
+	DrawDebugLine(out_location,CursorLocation,255,0,0,true);
+	DrawDebugSphere(CursorLocation, 50, 100, 255,0,0,true);
+
+	HitActor = Trace(HitLocation, HitNormal, CursorLocation, out_Location, true);
+
+	`log("HitActor is "$HitActor);
+	if(HitActor.IsA('PR0Pawn'))
+	{
+		//The possession hits a bot and will possess it
+		return HitActor;
+	}
+	else
+	{
+		//The possession misses, none will be returned
+		return none;
 	}
 }
 
 //Possesses a different pawn
 function OnPossess(SeqAct_Possess inAction)
 {
+	local Pawn PawnToPossess;
+
     if(possessed==TRUE)
     {
         ReturnToNormal();
     }
     else
     {
-        possessed=TRUE;
-        if( inAction.PawnToPossess != None )
+		PawnToPossess = PR0Pawn(GetPossessionTarget());
+		
+        if( PawnToPossess != None )
         {
+			//Target to possess is found, and we will possess it
+			possessed=TRUE;
             OldPawn = Pawn;
             UnPossess();
             OldPawn.SetHidden(TRUE);
             OldPawn.SetCollisionType(COLLIDE_NoCollision);
-            Possess( inAction.PawnToPossess, FALSE );
+            Possess( PawnToPossess, FALSE );
             SetTimer(5, false, 'ReturnToNormal');
         }    
+		else
+		{
+			`log("TARGET NOT FOUND");
+		}
     }
 }
 
@@ -46,6 +113,7 @@ function OnPossess(SeqAct_Possess inAction)
 function ReturnToNormal()
 {
     local Pawn EnemyPawn;
+
     possessed=FALSE;
     EnemyPawn = Pawn;
     UnPossess();
@@ -128,6 +196,7 @@ ignores SeePlayer, HearNoise, Bump;
 
 		//Calculate Delta to be applied to ViewRotation
 		DeltaRot.Yaw = Pawn.Rotation.Yaw;
+		//TODO: Rotation based on cursor? Or should it be independent(e.g. player keeps looking forward)
 		DeltaRot.Pitch = PlayerInput.aLookUp;
 
 		//Processes the player ViewRotation adds DeltaRot (player's input)
@@ -142,4 +211,6 @@ DefaultProperties
 {
 	Possessed = false
 	Flying = false
+	PossessionRange=400
+	InputClass=class'PR0.MouseInterfacePlayerInput'
 }

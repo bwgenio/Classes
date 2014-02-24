@@ -66,7 +66,7 @@ simulated function bool CalcCamera(float fDeltaTime, out Vector out_CamLoc, out 
 	//Perfectly Horizontal camera has Roll = 0
 	out_CamRot.Roll = 0;
 	//90 degrees offset of Side scrolling camera applies when Yaw = 16384
-	out_CamRot.Yaw = 90 * DegToUnrRot;
+	out_CamRot.Yaw = 16384;
 
 	return true;
 }
@@ -80,10 +80,10 @@ simulated singular event Rotator GetBaseAimRotation()
 	//Set the POVRot to the previous rotation value of this pawn
 	POVRot = Rotation;
 
-	if((Rotation.Yaw % 65535 > 90 * DegToUnrRot && Rotation.Yaw % 65535 < 49560) ||
-		(Rotation.Yaw % 65535 < -90 * DegToUnrRot && Rotation.Yaw % 65535 > -49560) )
+	if((Rotation.Yaw % 65535 > 16384 && Rotation.Yaw % 65535 < 49560) ||
+		(Rotation.Yaw % 65535 < -16384 && Rotation.Yaw % 65535 > -49560) )
 	{
-		POVRot.Yaw = 180 * DegToUnrRot;
+		POVRot.Yaw = 32768;
 	}
 	else
 	{

@@ -123,7 +123,8 @@ event HearNoise(float Loudness, Actor NoiseMaker, optional Name NoiseType)
 	super.HearNoise(Loudness, NoiseMaker, NoiseType);
 
 	//Bot will walk towards the NoiseMaker if the loudness is greater or equal to 1
-	if(Loudness >= 1.0)
+	//And the sound is made inside his SuspicionDistance
+	if(Loudness >= 1.0 && VSize(NoiseMaker.Location - Pawn.Location) <= SuspicionDistance)
 	{ 
 		`log("MOVING TOWARDS "$NoiseMaker);
 		TempDest = NoiseMaker;
@@ -142,7 +143,10 @@ auto state PathFinding
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN STATE PATHFINDING FROM "$PreviousStateName);
-		Pawn.TriggerEventClass(class'SeqEvent_StateChange', Pawn);
+		if (PreviousStateName != 'None')
+		{
+			Pawn.TriggerEventClass(class'SeqEvent_StateChange', Pawn);
+		}
 	}
 
 Begin:
