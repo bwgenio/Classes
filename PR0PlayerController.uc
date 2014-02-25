@@ -167,7 +167,7 @@ ignores SeePlayer, HearNoise, Bump;
             Flying = FALSE;
             Pawn.SetPhysics(PHYS_Falling);
         }
-        Pawn.Acceleration.Z = PlayerInput.aUp * DeltaTime * 1000;
+        Pawn.Acceleration.Z = PlayerInput.aUp * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
 
 		TempRot.Pitch = Pawn.Rotation.Pitch;
 		TempRot.Roll = 0;
