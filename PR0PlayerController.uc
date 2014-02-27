@@ -27,10 +27,8 @@ function ModifyLightIntensity()
 	foreach Pawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
 	{
 		//Brighten the light when jumping
-		`log("Flying is "$Flying);
 		if(Flying == TRUE)
 		{
-			//HeroLight.Radius += LightGrowRate;
 			HeroLight.Radius = Min(HeroLight.Radius + LightGrowRate, MaxLightRange);
 		}
 		//Dim the light when descending
@@ -216,7 +214,6 @@ ignores SeePlayer, HearNoise, Bump;
 	function UpdateRotation(float DeltaTime)
 	{
 		local Rotator DeltaRot, ViewRotation;
-
 		ViewRotation = Rotation;
 
 		//Calculate Delta to be applied to ViewRotation

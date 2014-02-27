@@ -21,10 +21,7 @@ simulated event PreBeginPlay()
 simulated event PostBeginPlay()
 {
 	Super.PostBeginPlay();
-	//SkeletalMeshComponent.LightEnvironment.SetEnabled = TRUE;
 	HeroLight.SetEnabled(TRUE);
-	//Mesh.SetLightEnvironment(HeroLightEnvironment);
-	//Mesh.AttachComponentToSocket(HeroLight, );
 }
 
 //Checks when pawn is touching floor. Removes damage from falling
@@ -102,11 +99,6 @@ simulated singular event Rotator GetBaseAimRotation()
 //Handler of the start firing kismet function
 function OnAIStartFireAt(UTSeqAct_AIStartFireAt Action)
 {
-	//Controller.GotoState('Attack');
-	//Action.LinkedVariables(class'Player', Target);
-	//Target = Action.InputLinks
-
-	//Make Bot start firing at player
 	Controller.GotoState('Attack');
 }
 

@@ -127,6 +127,23 @@ event HearNoise(float Loudness, Actor NoiseMaker, optional Name NoiseType)
 	}
 }
 
+function Rotator GetAdjustedAimFor(Weapon W, Vector StartFireLoc)
+{
+	//Reference to the playerpawn
+	local Pawn PlayerPawn;
+
+	if(Pawn != none)
+	{
+		PlayerPawn = WorldInfo.GetALocalPlayerController().Pawn;
+		`log("GET ADJUSTED AIM FOR "$Rotator(Normal(PlayerPawn.Location - Pawn.Location)));
+		return Rotator(Normal(PlayerPawn.Location - Pawn.Location));
+	}
+	else
+	{
+		return Rotation;
+	}
+}
+
 //The Pathfinding state has a prefix Auto to denote that this is the default state the bot will start in
 auto state PathFinding
 {
@@ -187,6 +204,11 @@ state Hostile
 				ClosestDistance = _Distance;
 			}
 		}
+
+		if(ClosestDistance > 2000)
+		{
+			ClosestAlarm = none;
+		}
 	}
 
 Begin:
@@ -202,7 +224,12 @@ Begin:
 	else
 	{
 		FindClosestAlarm();
-		//Pawn.TriggerEventClass(class'SeqEvent_TriggerAlarm', Pawn);	
+		if(ClosestAlarm != none)
+		{
+			`log("MOVING TOWARD "$ClosestAlarm);
+			MoveToward(ClosestAlarm, ClosestAlarm);
+		}
+		//Pawn.TriggerEventClass(class'SeqEvent_TriggerAlarm', Pawn);
 	}
 
 	Sleep(5);
@@ -240,13 +267,12 @@ state Attack
 				//Pawn.SetDesiredRotation(Rotator(Normal(PlayerPawn.Location)));
 				SetFocalPoint(PlayerPawn.Location);
 				Focus = PlayerPawn;
-				FireWeaponAt(PlayerPawn);
-				//Pawn.StartFire(0);
+				Pawn.StartFire(0);
 			}
 			else
 			{
-				StopFiring();
-				//Pawn.StopFire(0);
+				//StopFiring();
+				Pawn.StopFire(0);
 				Focus = none;
 				GotoState('ChasePlayer');
 			}
@@ -254,8 +280,7 @@ state Attack
 		else
 		{
 			//Try to approach player before attacking
-			//Pawn.StopFire(0);
-			StopFiring();
+			Pawn.StopFire(0);
 			Focus = none;
 			GotoState('ChasePlayer');
 		}
@@ -305,6 +330,7 @@ Begin:
 		ChaseTimer = Default.ChaseTimer;
 		//Reset the Bot's alertness to zero
 		Alertness = 0;
+		`log("CHASE TIMER OUT");
 		//Reset Bot's state to pathfinding
 		GotoState('PathFinding');
 	}
