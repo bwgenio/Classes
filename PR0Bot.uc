@@ -1,4 +1,4 @@
-class Pr0Bot extends AIController;
+class Pr0Bot extends UDKBot;
 
 //AI Patrol Starting Node
 var(Patrol) Actor StartNode;
@@ -35,11 +35,6 @@ event Possess(Pawn inPawn, bool bVehicleTransition)
 {
 	super.Possess(inPawn, bVehicleTransition);
 	Pawn.SetMovementPhysics();
-}
-
-simulated function Tick(float DeltaTime)
-{
-	super.Tick(DeltaTime);
 }
 
 function PR0ConfigureBot(SeqAct_PR0ConfigureBot Action)
@@ -200,9 +195,9 @@ Begin:
 	//Or we should check how far is the nearest alarm
 	//Or check wheter alarm is in certain distance from bot
 	//if(Bool(Rand(2)))
-	if(false)
+	if(true)
 	{
-		Pawn.TriggerEventClass(class'SeqEvent_BotStartShooting', Pawn);
+		GotoState('Attack');
 	}
 	else
 	{
@@ -236,19 +231,22 @@ state Attack
 		
 		PlayerPawn = WorldInfo.GetALocalPlayerController().Pawn;
 
-		Focus = PlayerPawn;
 		EnemyDistance = VSize(Pawn.Location - PlayerPawn.Location);
 
 		if(EnemyDistance <= MaxFireDistance)
 		{
-			// TODO: untested
 			if(CanSee(PlayerPawn))
 			{
-				Pawn.StartFire(0);
+				//Pawn.SetDesiredRotation(Rotator(Normal(PlayerPawn.Location)));
+				SetFocalPoint(PlayerPawn.Location);
+				Focus = PlayerPawn;
+				FireWeaponAt(PlayerPawn);
+				//Pawn.StartFire(0);
 			}
 			else
 			{
-				Pawn.StopFire(0);
+				StopFiring();
+				//Pawn.StopFire(0);
 				Focus = none;
 				GotoState('ChasePlayer');
 			}
@@ -256,7 +254,8 @@ state Attack
 		else
 		{
 			//Try to approach player before attacking
-			Pawn.StopFire(0);
+			//Pawn.StopFire(0);
+			StopFiring();
 			Focus = none;
 			GotoState('ChasePlayer');
 		}
@@ -267,7 +266,7 @@ state Attack
 Begin:
 
 	AttackPlayer();
-	Sleep(1);
+	Sleep(0.5);
 	Goto('Begin');
 }
 
@@ -278,7 +277,7 @@ state ChasePlayer
 	{
 		`log("BOT IS NOW IN CHASEPLAYER STATE FROM "$PreviousStateName);
 		Pawn.TriggerEventClass(class'SeqEvent_StateChange', Pawn);
-		//SetTimer(ChaseTimer, false, 'AbortChase');
+		SetTimer(ChaseTimer, false, 'AbortChase');
 	}
 
 	function FindChasePath(out Actor Destination)

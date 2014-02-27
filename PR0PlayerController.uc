@@ -4,6 +4,14 @@ var Pawn OldPawn;
 var bool possessed, Flying;
 //The range of possession
 var(Ability) float PossessionRange;
+//The rate which light grow
+var(Ability) int LightGrowRate;
+//The rate which light dim
+var(Ability) int LightDimRate;
+//The maximum range of souluminescence
+var(Ability) int MaxLightRange;
+//The minimum range of souluminescence
+var(Ability) int MinLightRange;
 
 simulated event PostBeginPlay()
 {
@@ -12,13 +20,24 @@ simulated event PostBeginPlay()
 	`log("PR0PlayerController is up!");
 }
 
-function UpdateLightWhenJump()
+function ModifyLightIntensity()
 {
 	local PointLightComponent HeroLight;
 
 	foreach Pawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
 	{
-		HeroLight.Radius += 10;
+		//Brighten the light when jumping
+		`log("Flying is "$Flying);
+		if(Flying == TRUE)
+		{
+			//HeroLight.Radius += LightGrowRate;
+			HeroLight.Radius = Min(HeroLight.Radius + LightGrowRate, MaxLightRange);
+		}
+		//Dim the light when descending
+		else
+		{
+			HeroLight.Radius = Max(HeroLight.Radius - LightDimRate, MinLightRange);
+		}
 	}
 }
 
@@ -157,17 +176,23 @@ ignores SeePlayer, HearNoise, Bump;
 
 		Pawn.Acceleration.X = -1 * PlayerInput.aStrafe * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
 		Pawn.Acceleration.Y = 0;
-		if(PlayerInput.aUp != 0)
+
+		//Flying physics only available when the player is not possessing any bot
+		if(possessed == FALSE)
 		{
-           Flying = TRUE;
-           Pawn.SetPhysics(PHYS_Flying);
-        }
-        else if(PlayerInput.aUp == 0 && Flying)
-        {
-            Flying = FALSE;
-            Pawn.SetPhysics(PHYS_Falling);
-        }
-        Pawn.Acceleration.Z = PlayerInput.aUp * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
+			if(PlayerInput.aUp != 0)
+			{
+			   Flying = TRUE;
+			   Pawn.SetPhysics(PHYS_Flying);
+			}
+			else if(PlayerInput.aUp == 0 && Flying)
+			{
+				Flying = FALSE;
+				Pawn.SetPhysics(PHYS_Falling);
+			}
+			ModifyLightIntensity();
+			Pawn.Acceleration.Z = PlayerInput.aUp * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
+		}
 
 		TempRot.Pitch = Pawn.Rotation.Pitch;
 		TempRot.Roll = 0;
@@ -212,5 +237,9 @@ DefaultProperties
 	Possessed = false
 	Flying = false
 	PossessionRange=400
+	LightGrowRate=10
+	LightDimRate=5
+	MaxLightRange=500
+	MinLightRange=100
 	InputClass=class'PR0.MouseInterfacePlayerInput'
 }

@@ -1,7 +1,5 @@
 class PR0Pawn extends UTPawn;
 
-//THIS IS A COMMENT
-
 //Position of Y-AXIS to lock the camera to
 var(Camera) float CamOffsetDistance;
 //Light that emits from the player
@@ -16,14 +14,17 @@ simulated event PreBeginPlay()
 	super.PreBeginPlay();
 	HeroLight = new(self)class'PointLightComponent';
 	HeroLight.SetLightProperties(5,LightColor);
-	HeroLight.Radius = 200;
-	AttachComponent(HeroLight);
+	HeroLight.Radius = 100;
+	Mesh.AttachComponent(HeroLight, 'b_Neck');
 }
 
 simulated event PostBeginPlay()
 {
 	Super.PostBeginPlay();
-	`log("PR0Pawn is up");
+	//SkeletalMeshComponent.LightEnvironment.SetEnabled = TRUE;
+	HeroLight.SetEnabled(TRUE);
+	//Mesh.SetLightEnvironment(HeroLightEnvironment);
+	//Mesh.AttachComponentToSocket(HeroLight, );
 }
 
 //Checks when pawn is touching floor. Removes damage from falling
@@ -125,6 +126,16 @@ DefaultProperties
 	//LightEnvironment = HeroLightEnvironment
 	//Components.Add(HeroLightEnvironment)
 
+	//Begin Object Class=PointLightComponent Name=HeroLightEnvironment
+		
+	//	bSynthesizeSHLight=TRUE
+	//	bIsCharacterLightEnvironment=TRUE
+	//	bEnabled = TRUE
+	//	Radius = 200
+	//End Object
+	//LightEnvironment=HeroLightEnvironment
+	//Components.Add(HeroLightEnvironment)
+
 	Begin Object class=SkeletalMeshComponent Name=SandboxPawnSkeletalMesh
 		SkeletalMesh=SkeletalMesh'CH_IronGuard_Male.Mesh.SK_CH_IronGuard_MaleA'
 		AnimSets(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
@@ -135,11 +146,9 @@ DefaultProperties
 		HiddenEditor=FALSE
     End Object
 
-
     Mesh=SandboxPawnSkeletalMesh
     Components.Add(SandboxPawnSkeletalMesh)
 
-	// TODO: TEST ADDING EVENTS HERE INSTEAD OF CONTROLLER
 	SupportedEvents.Add(class'SeqEvent_TriggerAlarm')
 	SupportedEvents.Add(class'SeqEvent_BotStartShooting')
 	SupportedEvents.Add(class'SeqEvent_StateChange')
