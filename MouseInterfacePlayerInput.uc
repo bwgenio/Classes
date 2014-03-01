@@ -2,9 +2,12 @@ class MouseInterfacePlayerInput extends PlayerInput;
 
 //2D positions of the mouse in the screen
 var Vector2D MouseCoordinates;
+//Reference the actual SWF container
+var GFxHUD HudMovie;
 
 event PlayerInput(float DeltaTime)
 {
+	
 	//Handles mouse event to update the 2D position of the mouse in the screen
 	//Ensure HUD is valid
 	if(myHUD != none)

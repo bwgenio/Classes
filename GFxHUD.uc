@@ -1,5 +1,9 @@
 class GFxHUD extends GFxMoviePlayer;
 
+//Mouse Location Variables. Will be assigned from the actionscript
+var float MouseX;
+var float MouseY;
+
 //Create a Health Cache variable
 var float LastHealthpc;
 
@@ -26,6 +30,15 @@ function int roundNum(float NumIn)
 	}
 }
 
+//presets the mouse location to 0,0
+function CaptureMouse(bool IsEnabled)
+{
+	local Vector2D screensize;
+	GetGameViewportClient().GetViewportSize(screensize);
+	GetGameViewportClient().SetMouse(0, 0);
+	//bCaptureMouseInput = IsEnabled;
+}
+
 //  Function to return a percentage from a value and a maximum
 function int getPrc(int val, int max)
 {
@@ -38,15 +51,22 @@ function Init(optional LocalPlayer localP)
 	//Start and load the SWF Movie
 	Start();
 	Advance(0.f);
+	CaptureMouse(True);
 
 	//Set the cahce value so that it will get updated on the first Tick
 	LastHealthpc = -1337;
 
 	//Load the references with pointers to the movieClips and text fields in the .swf
-	HealthBar = GetVariableObject("_root.HealthBar");
-	ManaBar = GetVariableObject("_root.ManaBar");
+	HealthBar = GetVariableObject("_root.HealthBar.Bar");
+	ManaBar = GetVariableObject("_root.ManaBar.Bar");
 }
 
+// This is called from Flash. Gets the x and y coordinates from the mouse location
+function ReceiveMouseCoords(float x, float y)
+{
+	MouseX = x;
+	MouseY = y;
+}
 //Called every update Tick
 function TickHUD() 
 {
@@ -64,8 +84,8 @@ function TickHUD()
 		//...Make it so...
 		LastHealthpc = getPrc(UTP.Health, UTP.HealthMax);
 		//...Update the bar's xscale (but don't let it go over 100)...
-		HealthBar.SetFloat("_Bar._xscale", (LastHealthpc > 100) ? 100.0f : LastHealthpc);
-		ManaBar.SetFloat("_Bar._xscale", 50.0f);
+		HealthBar.SetFloat("_xscale", (LastHealthpc > 100) ? 100.0f : LastHealthpc);
+		ManaBar.SetFloat("_xscale", 50.0f);
 	}
 }
 
@@ -73,7 +93,6 @@ DefaultProperties
 {
 	//this is the HUD. If the HUD is off, then this should be off
 	bDisplayWithHudOff=false
-	MovieInfo = swfMovie'PR0.PR0HUD'
-	bAutoPlay = true
-	bIgnoreMouseInput = true
+	MovieInfo = swfMovie'PRAsset.HUD.PR-HUD'
+	
 }

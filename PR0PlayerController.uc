@@ -61,7 +61,7 @@ exec function Actor GetPossessionTarget()
 	Pawn.GetActorEyesViewPoint(out_Location, out_Rotation);
 	
 	//The cursor's vector is stored in the HUD
-	CursorLocation = PR0HUD(myHUD).WorldCursorOrigin;
+	CursorLocation = PR0HUDGfx(myHUD).WorldCursorOrigin;
 
 	//Force the Y-position to be zero
 	CursorLocation.Y = 0;
