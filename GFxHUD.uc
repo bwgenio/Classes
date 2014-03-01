@@ -73,5 +73,7 @@ DefaultProperties
 {
 	//this is the HUD. If the HUD is off, then this should be off
 	bDisplayWithHudOff=false
-	//MovieInfo = swfMovie
+	MovieInfo = swfMovie'PR0.PR0HUD'
+	bAutoPlay = true
+	bIgnoreMouseInput = true
 }
