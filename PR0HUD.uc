@@ -1,6 +1,7 @@
 class PR0HUD extends HUD
 	config(Game);
 
+
 //Vector in 3D where player cursor is
 var Vector WorldCursorOrigin;
 //Directional vector in 3D (not really useful, just a dummy)
