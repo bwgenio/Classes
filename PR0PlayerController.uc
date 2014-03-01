@@ -259,6 +259,7 @@ ignores SeePlayer, HearNoise, Bump;
 
 DefaultProperties
 {
+	bForceBehindView = false
 	bIsPlayer = true
 	Possessed = false
 	Flying = false
