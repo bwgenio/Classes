@@ -98,7 +98,10 @@ exec function Actor GetPossessionTarget()
 //Possesses a different pawn
 function OnPossess(SeqAct_Possess inAction)
 {
+	//Reference to bot pawn to possess
 	local Pawn PawnToPossess;
+	//Reference to player's light
+	local PointLightComponent HeroLight;
 
     if(possessed==TRUE)
     {
@@ -112,10 +115,20 @@ function OnPossess(SeqAct_Possess inAction)
         {
 			//Target to possess is found, and we will possess it
 			possessed=TRUE;
+
+			//Stop Bot firing when he is firing
+			PawnToPossess.StopFire(0);
+
+			//Hide PlayerPawn, Set Collision to NoCollision, and Turn off HeroLight
             OldPawn = Pawn;
             UnPossess();
             OldPawn.SetHidden(TRUE);
             OldPawn.SetCollisionType(COLLIDE_NoCollision);
+			foreach OldPawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
+			{
+				HeroLight.SetEnabled(FALSE);
+			}
+
             Possess( PawnToPossess, FALSE );
             SetTimer(5, false, 'ReturnToNormal');
         }    
@@ -129,7 +142,16 @@ function OnPossess(SeqAct_Possess inAction)
 //Unpossesses and returns the original character
 function ReturnToNormal()
 {
+	//Reference to the bot
     local Pawn EnemyPawn;
+	//Reference to player's light
+	local PointLightComponent HeroLight;
+
+	//Return when player already unpossessed
+	if(possessed == FALSE)
+	{
+		return;
+	}
 
     possessed=FALSE;
     EnemyPawn = Pawn;
@@ -137,12 +159,18 @@ function ReturnToNormal()
     EnemyPawn.SetCollisionType(COLLIDE_NoCollision);
     Possess(OldPawn, FALSE);
     OldPawn.SetLocation(EnemyPawn.Location);
+    
     if(EnemyPawn != None)
     {
         EnemyPawn.Destroy();
     }
+
     OldPawn.SetHidden(FALSE);
     OldPawn.SetCollisionType(COLLIDE_BlockAll);
+	foreach OldPawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
+	{
+		HeroLight.SetEnabled(TRUE);
+	}
 }
 
 state PlayerWalking
@@ -231,6 +259,7 @@ ignores SeePlayer, HearNoise, Bump;
 
 DefaultProperties
 {
+	bIsPlayer = true
 	Possessed = false
 	Flying = false
 	PossessionRange=400

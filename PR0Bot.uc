@@ -135,7 +135,6 @@ function Rotator GetAdjustedAimFor(Weapon W, Vector StartFireLoc)
 	if(Pawn != none)
 	{
 		PlayerPawn = WorldInfo.GetALocalPlayerController().Pawn;
-		`log("GET ADJUSTED AIM FOR "$Rotator(Normal(PlayerPawn.Location - Pawn.Location)));
 		return Rotator(Normal(PlayerPawn.Location - Pawn.Location));
 	}
 	else

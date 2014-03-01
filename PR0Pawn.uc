@@ -24,9 +24,24 @@ simulated event PostBeginPlay()
 	HeroLight.SetEnabled(TRUE);
 }
 
+simulated function Tick(float DeltaTime)
+{
+	//Variable to hold reference to pawn's location
+	local Vector tempLocation;
+
+	super.Tick(DeltaTime);
+
+	//Makes sure the pawn stays in Y=0 line
+	tempLocation = Location;
+	tempLocation.Y = 0;
+	SetLocation(tempLocation);
+}
+
 //Checks when pawn is touching floor. Removes damage from falling
 simulated event Landed(Vector HitNormal, Actor FloorActor)
 {
+	//Resets the souluminescence radius to its minimum
+	HeroLight.Radius = 100;
 	SetPhysics(PHYS_Walking);
 }
 
@@ -34,7 +49,7 @@ simulated event Landed(Vector HitNormal, Actor FloorActor)
 simulated event BecomeViewTarget(PlayerController PC)
 {
 	local UTPlayerController UTPC;
-
+	
 	Super.BecomeViewTarget(PC);
 
 	if(LocalPlayer(PC.Player) != none)
@@ -92,7 +107,7 @@ simulated singular event Rotator GetBaseAimRotation()
 	{
 		POVRot.Pitch = RemoteViewPitch << 8;
 	}
-
+	
 	return POVRot;
 }
 
