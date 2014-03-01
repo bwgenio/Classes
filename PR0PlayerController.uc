@@ -39,6 +39,48 @@ function ModifyLightIntensity()
 	}
 }
 
+exec function bool IsCursorOnEnemy()
+{
+	//Pawn's location. The start of the trace
+	local Vector out_Location;
+	//Pawn's rotation (which way the cursor is facing)
+	local Rotator out_Rotation;
+	//The location of the cursor. The end of the trace
+	local Vector CursorLocation;
+	//The actor which is hit by possession
+	local Actor HitActor;
+	//Location where the trace hits an actor
+	local Vector HitLocation;
+	//The normal where the trace hits an actor
+	local Vector HitNormal;
+
+	//Get the pawn's viewpoint (not based on camera)
+	Pawn.GetActorEyesViewPoint(out_Location, out_Rotation);
+
+	//The cursor's vector is stored in the HUD
+	CursorLocation = PR0HUDGfx(myHUD).WorldCursorOrigin;
+
+	//Force the Y-position to be zero
+	CursorLocation.Y = 0;
+	out_Location.Y = 0;
+	FlushPersistentDebugLines();
+	HitActor = Trace(HitLocation, HitNormal, CursorLocation, out_Location, true);
+	DrawDebugLine(out_Location, CursorLocation, 0, 255, 0, true);
+
+	if(HitActor.IsA('PR0Pawn') && (HitActor.Location==CursorLocation || (Abs(CursorLocation.X-HitActor.Location.X) <= 50.0f) || (Abs(CursorLocation.Z-HitActor.Location.Z) <= 50.0f))
+		&& (VSize(out_Location-CursorLocation)<=PossessionRange))
+	{
+		//The possession hits a bot and will possess it
+		`log("TRUE FOR POSSESSION");
+		return True;
+	}
+	else
+	{
+		`log("FALSE FOR POSSESSION");
+		return False;
+	}
+}
+
 exec function Actor GetPossessionTarget()
 {
 	//Pawn's location. The start of the trace

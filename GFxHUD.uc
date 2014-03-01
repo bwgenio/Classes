@@ -9,7 +9,7 @@ var float LastHealthpc;
 
 //Create variables to hold references to the Flash MovieClips and Text Fields that will be modified
 var GFxObject HealthBar, ManaBar;
-var GFxObject Countdown, Status;
+var GFxObject Countdown, Cursor;
 
 //  Function to round a float value to an int
 function int roundNum(float NumIn) 
@@ -55,10 +55,11 @@ function Init(optional LocalPlayer localP)
 
 	//Set the cahce value so that it will get updated on the first Tick
 	LastHealthpc = -1337;
-
+	
 	//Load the references with pointers to the movieClips and text fields in the .swf
 	HealthBar = GetVariableObject("_root.HealthBar.Bar");
 	ManaBar = GetVariableObject("_root.ManaBar.Bar");
+	Cursor = GetVariableObject("_root.Cursor");
 }
 
 // This is called from Flash. Gets the x and y coordinates from the mouse location
@@ -77,6 +78,14 @@ function TickHUD()
 	{
 		return;
 	}
+	if(PR0PlayerController(getPC()).IsCursorOnEnemy() == True)
+	{
+		Cursor.GotoAndStop("2");	
+	}
+	else
+	{
+		Cursor.GotoAndStop("1");
+	}
 
 	//If the cached value for Health percentage isn't equal to the current...
 	if (LastHealthpc != getPrc(UTP.Health, UTP.HealthMax)) 
@@ -94,5 +103,4 @@ DefaultProperties
 	//this is the HUD. If the HUD is off, then this should be off
 	bDisplayWithHudOff=false
 	MovieInfo = swfMovie'PRAsset.HUD.PR-HUD'
-	
 }
