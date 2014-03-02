@@ -151,23 +151,23 @@ function gotoFrame(int DangerLevel)
 		CurrentDangerLevel = DangerLevel;
 		switch(DangerLevel)
 		{
-			Case 0:
-				Detection_Eye.GotoAndStop("0");
+			Case 0: //Alertness 0
+				Detection_Eye.GotoAndStop("1");
 				break;
-			Case 1:
+			Case 1: //Alertness 1-24
 				Detection_Eye.GotoAndPlay("2");
 				break;
-			Case 2:
+			Case 2: //Alertness 25-49
 				Detection_Eye.GotoAndPlay("27");
 				break;
-			Case 3:
+			Case 3: //Alertness 50-74
 				Detection_Eye.GotoAndPlay("52");
 				break;
-			Case 4:
+			Case 4: //Alertness 75-99
 				Detection_Eye.GotoAndPlay("77");
 				break;
-			Case 5:
-				Detection_Eye.GotoAndStop("99");
+			Case 5: //Only when alertness == 100
+				Detection_Eye.GotoAndStop("91");
 				break;
 		}
 	}

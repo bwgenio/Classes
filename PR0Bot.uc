@@ -23,9 +23,14 @@ var(Combat) float MaxFireDistance;
 //Bot's chase Timer (seconds)
 var(Combat) float ChaseTimer;
 
+//Reference to HUDMovie in GFxHUD
+var(HUD) GFxHUD HUDMovie;
+
 simulated function PostBeginPlay()
 {
+
 	super.PostBeginPlay();
+	HUDMovie = PR0HUDGfx(WorldInfo.GetALocalPlayerController().myHUD).HudMovie;
 
 	//Initiate the state
 	GotoState('PathFinding');
@@ -83,18 +88,22 @@ event SeePlayer(Pawn Seen)
 		//Player is seen by the bot, or alertness reached 100
 		else if(Distance <= HostileDistance || Alertness == 100)
 		{
-			Alertness = 100;
 			GoToState('Hostile', 'Begin');
-			WorldInfo.Game.Broadcast(self, "HOSTILE MODE");
 			return;
 			//Hostile state will try to trigger the alarm and kill the player
 		}
+		else if(Alertness == 50)
+		{
+			TempDest = Target;
+			GotoState('Suspicion');
+			return;
+		}
 		else if(Distance <= SuspicionDistance)
 		{
-			//WorldInfo.Game.Broadcast(self, "SUSPICION MODE");
 			//Increase the alertness
-			Alertness += 10;
-			`log("ALERTNESS INCREASED TO "$Alertness);
+			Alertness += 5;
+			`log("DIVISION "$Alertness$ " IS "$FCeil(float(Alertness)/25.0f));
+			HUDMovie.gotoFrame(FCeil(float(Alertness)/25.0f));
 			return;
 		}
 		else
@@ -102,7 +111,6 @@ event SeePlayer(Pawn Seen)
 			//Player is too far to be seen by the bot.
 			//Reset the alertness back to zero
 			Alertness = 0;
-			`log("ALERTNESS BACK TO ZERO");
 			Target = none;
 			Seen = none;
 			return;
@@ -174,11 +182,12 @@ Begin:
 
 state Hostile
 {
-	ignores SeePlayer;
+	ignores SeePlayer, HearNoise;
 
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN STATE HOSTILE FROM "$PreviousStateName);
+		Alertness = 100;
 		Pawn.TriggerEventClass(class'SeqEvent_StateChange', Pawn);
 	}
 
@@ -218,6 +227,7 @@ Begin:
 	//if(Bool(Rand(2)))
 	if(true)
 	{
+		TempDest = Target;
 		GotoState('Attack');
 	}
 	else
@@ -237,7 +247,7 @@ Begin:
 
 state Attack
 {
-	ignores SeePlayer;
+	ignores SeePlayer, HearNoise;
 
 	function BeginState(Name PreviousStateName)
 	{
@@ -389,15 +399,67 @@ state Suspicion
 
 	function BeginState(Name PreviousStateName)
 	{
-		`log("BOT IS NOW IN SUSPICION STATE FROM "$PreviousStateName);
+		`log("BOT IS NOW IN SUSPICION STATE FROM "$PreviousStateName$"TEMPDEST IS "$TempDest);
 		Alertness = 50;
+		HudMovie.gotoFrame(2);
+	}
+
+	function bool Suspicious()
+	{
+		local float Distance;
+
+		Distance = VSize(TempDest.Location - Pawn.Location);
+
+		if(Distance <= SuspicionDistance && Distance > HostileDistance)
+		{
+			WorldInfo.Game.Broadcast(self, "TRUE DISTANCE "$Distance$" Alertness "$Alertness);
+			//Increase the alertness if player is still inside the bot's field of vision
+			Alertness += 5;
+			`log("DIVISION "$Alertness$ " IS "$FCeil(float(Alertness)/25.0f));
+			HUDMovie.gotoFrame(FCeil(float(Alertness)/25.0f));
+			return true;
+		}
+		else if(Distance <= HostileDistance)
+		{
+			//Player inside the bot's hostile distance, engage attack mode
+			WorldInfo.Game.Broadcast(self, "FALSE DISTANCE "$Distance$" Alertness "$Alertness);
+			GotoState('Hostile');
+			return false;
+		}
+		else
+		{
+			//Else player is away and alertness will decrease
+			WorldInfo.Game.Broadcast(self, "TOO FAR "$Distance);
+			HUDMovie.gotoFrame(Alertness/25);
+			Alertness -= 5;
+			return false;
+		}
+		
 	}
 
 Begin:
+	
+	//If target is still not in hostile distance, walk towards it for 100 units
+	if(Suspicious() == true)
+	{
+		MoveToward(TempDest, TempDest, VSize(TempDest.Location - Pawn.Location) - 100,,true);
+	}
+	//Stays in the same place and do nothing
+	else
+	{
+		`log("NOT SUSPICIOUS AT ALL");
+	}
 
-	MoveToward(TempDest, TempDest, 50,,true);
-	Sleep(5);
-	GotoState('PathFinding');
+	if(Alertness == 0)
+	{
+		GotoState('Pathfinding');
+	}
+	else if(Alertness == 100)
+	{
+		GotoState('Hostile');
+	}
+	Sleep(1);
+	Goto('Begin');
 }
 
 DefaultProperties
@@ -405,7 +467,7 @@ DefaultProperties
 	bIsPlayer = true
 	SuspicionDistance = 800
 	HostileDistance = 400
-	MaxFireDistance = 800
+	MaxFireDistance = 600
 	Alertness=0
 	ChaseTimer=3
 	//bStatic = false
