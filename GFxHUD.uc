@@ -7,9 +7,13 @@ var float MouseY;
 //Create a Health Cache variable
 var float LastHealthpc;
 
+//Current Frame of the Countdown
+var int CurrentFrame;
+
 //Create variables to hold references to the Flash MovieClips and Text Fields that will be modified
 var GFxObject HealthBar, ManaBar;
-var GFxObject Countdown, Cursor;
+var GFxObject Pos_Indicator, Cursor;
+var GFxObject Pos_Countdown;
 
 //  Function to round a float value to an int
 function int roundNum(float NumIn) 
@@ -60,6 +64,8 @@ function Init(optional LocalPlayer localP)
 	HealthBar = GetVariableObject("_root.HealthBar.Bar");
 	ManaBar = GetVariableObject("_root.ManaBar.Bar");
 	Cursor = GetVariableObject("_root.Cursor");
+	Pos_Indicator = GetVariableObject("_root.Pos_Indicator");
+	Pos_Countdown = GetVariableObject("_root.Pos_Indicator.Countdown");
 }
 
 // This is called from Flash. Gets the x and y coordinates from the mouse location
@@ -78,6 +84,8 @@ function TickHUD()
 	{
 		return;
 	}
+
+	//checkes whether the cursor is aiming at an enemy, and changes to the approperiate cursor image
 	if(PR0PlayerController(getPC()).IsCursorOnEnemy() == True)
 	{
 		Cursor.GotoAndStop("2");	
@@ -86,6 +94,7 @@ function TickHUD()
 	{
 		Cursor.GotoAndStop("1");
 	}
+
 
 	//If the cached value for Health percentage isn't equal to the current...
 	if (LastHealthpc != getPrc(UTP.Health, UTP.HealthMax)) 
@@ -98,9 +107,33 @@ function TickHUD()
 	}
 }
 
+
+//Checks whether the player is currently possessing a Pawn
+//If True, displays the the Countdown and Pos_Indicator
+//Displays the countdown and changes a frame every second.
+function PosCountdown()
+{
+	local string CurrentFrameString;
+	if(CurrentFrame > 0 && PR0PlayerController(getPC()).possessed==True)
+	{
+		Pos_Indicator.GotoAndStop("2");
+		CurrentFrameString = string(CurrentFrame);
+		Pos_Countdown.GotoAndStop(CurrentFrameString);
+		CurrentFrame = CurrentFrame - 1;
+	}
+}
+
+function EndPosCountdown()
+{
+	Pos_Indicator.GotoAndStop("1");
+	Pos_Countdown.GotoAndStop("1");
+	CurrentFrame = 6;
+}
+
 DefaultProperties
 {
 	//this is the HUD. If the HUD is off, then this should be off
+	CurrentFrame=6
 	bDisplayWithHudOff=false
 	MovieInfo = swfMovie'PRAsset.HUD.PR-HUD'
 }

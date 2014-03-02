@@ -153,12 +153,11 @@ function OnPossess(SeqAct_Possess inAction)
     else
     {
 		PawnToPossess = PR0Pawn(GetPossessionTarget());
-		
         if( PawnToPossess != None )
         {
 			//Target to possess is found, and we will possess it
 			possessed=TRUE;
-
+			PR0HUDGfx(myHUD).HudMovie.PosCountdown();
 			//Stop Bot firing when he is firing
 			PawnToPossess.StopFire(0);
 
@@ -173,7 +172,8 @@ function OnPossess(SeqAct_Possess inAction)
 			}
 
             Possess( PawnToPossess, FALSE );
-            SetTimer(5, false, 'ReturnToNormal');
+			SetTimer(1, true, 'PosCountdown', PR0HUDGfx(myHUD).HudMovie);
+            SetTimer(6, false, 'ReturnToNormal');
         }    
 		else
 		{
@@ -189,6 +189,9 @@ function ReturnToNormal()
     local Pawn EnemyPawn;
 	//Reference to player's light
 	local PointLightComponent HeroLight;
+	
+	PR0HUDGfx(myHUD).HudMovie.EndPosCountdown();
+	SetTimer(0.f);
 
 	//Return when player already unpossessed
 	if(possessed == FALSE)
