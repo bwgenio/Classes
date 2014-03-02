@@ -45,8 +45,6 @@ simulated function PostBeginPlay()
 	//Call HudMovie's Initialise function
 	HudMovie.Init();
 
-	// When using scaleform these seem to be set to 0?
-	
 }
 
 //Gets the X and Y coordinates of the mouse from GFxHUD.uc

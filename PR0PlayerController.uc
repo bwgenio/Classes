@@ -16,8 +16,6 @@ var(Ability) int MinLightRange;
 simulated event PostBeginPlay()
 {
 	super.PostBeginPlay();
-
-	`log("PR0PlayerController is up!");
 }
 
 function ModifyLightIntensity()
@@ -63,20 +61,23 @@ exec function bool IsCursorOnEnemy()
 	//Force the Y-position to be zero
 	CursorLocation.Y = 0;
 	out_Location.Y = 0;
-	FlushPersistentDebugLines();
-	HitActor = Trace(HitLocation, HitNormal, CursorLocation, out_Location, true);
-	DrawDebugLine(out_Location, CursorLocation, 0, 255, 0, true);
 
+	HitActor = Trace(HitLocation, HitNormal, CursorLocation, out_Location, true);
+
+	//Return false if cursor is not hitting anything
+	if(HitActor == none)
+	{
+		return False;
+	}
+
+	//Check for multiple cases of hitting a target
 	if(HitActor.IsA('PR0Pawn') && (HitActor.Location==CursorLocation || (Abs(CursorLocation.X-HitActor.Location.X) <= 50.0f) || (Abs(CursorLocation.Z-HitActor.Location.Z) <= 50.0f))
 		&& (VSize(out_Location-CursorLocation)<=PossessionRange))
 	{
-		//The possession hits a bot and will possess it
-		`log("TRUE FOR POSSESSION");
 		return True;
 	}
 	else
 	{
-		`log("FALSE FOR POSSESSION");
 		return False;
 	}
 }
@@ -283,19 +284,20 @@ ignores SeePlayer, HearNoise, Bump;
 
 	function UpdateRotation(float DeltaTime)
 	{
-		local Rotator DeltaRot, ViewRotation;
-		ViewRotation = Rotation;
+		//The cursor location
+		local Vector CursorLocation;
 
 		//Calculate Delta to be applied to ViewRotation
-		DeltaRot.Yaw = Pawn.Rotation.Yaw;
-		//TODO: Rotation based on cursor? Or should it be independent(e.g. player keeps looking forward)
-		DeltaRot.Pitch = PlayerInput.aLookUp;
+		//DeltaRot.Yaw = Pawn.Rotation.Yaw;
+		//DeltaRot.Pitch = PlayerInput.aLookUp;
 
 		//Processes the player ViewRotation adds DeltaRot (player's input)
-		ProcessViewRotation(DeltaTime, ViewRotation, DeltaRot);
-
+		//ProcessViewRotation(DeltaTime, ViewRotation, DeltaRot);
+		CursorLocation = PR0HUDGfx(myHUD).WorldCursorOrigin;
+		CursorLocation.Y = 0;
+		
 		//Set the Pawn's rotation
-		SetRotation(ViewRotation);
+		SetRotation(Rotator(Normal(CursorLocation - Location)));
 	}
 }
 
