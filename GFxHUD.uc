@@ -10,10 +10,15 @@ var float LastHealthpc;
 //Current Frame of the Countdown
 var int CurrentFrame;
 
+//Current DangerLevel of the player
+var int CurrentDangerLevel;
+
 //Create variables to hold references to the Flash MovieClips and Text Fields that will be modified
 var GFxObject HealthBar, ManaBar;
 var GFxObject Pos_Indicator, Cursor;
 var GFxObject Pos_Countdown;
+Var GFxObject Detection_Eye;
+
 
 //  Function to round a float value to an int
 function int roundNum(float NumIn) 
@@ -66,6 +71,7 @@ function Init(optional LocalPlayer localP)
 	Cursor = GetVariableObject("_root.Cursor");
 	Pos_Indicator = GetVariableObject("_root.Pos_Indicator");
 	Pos_Countdown = GetVariableObject("_root.Pos_Indicator.Countdown");
+	Detection_Eye = GetVariableObject("_root.TheEye");
 }
 
 // This is called from Flash. Gets the x and y coordinates from the mouse location
@@ -123,6 +129,7 @@ function PosCountdown()
 	}
 }
 
+//Hides the PossessioncountDown
 function EndPosCountdown()
 {
 	Pos_Indicator.GotoAndStop("1");
@@ -130,10 +137,47 @@ function EndPosCountdown()
 	CurrentFrame = 6;
 }
 
+/**
+* Rotates between the different stages of the eye opening degrees
+* @Param=DangerLevel, int between 0 and 6. 
+*/
+
+function gotoFrame(int DangerLevel)
+{
+	if (CurrentDangerLevel == DangerLevel)
+		return;
+	else
+	{
+		CurrentDangerLevel = DangerLevel;
+		switch(DangerLevel)
+		{
+			Case 0:
+				Detection_Eye.GotoAndStop("0");
+				break;
+			Case 1:
+				Detection_Eye.GotoAndPlay("2");
+				break;
+			Case 2:
+				Detection_Eye.GotoAndPlay("27");
+				break;
+			Case 3:
+				Detection_Eye.GotoAndPlay("52");
+				break;
+			Case 4:
+				Detection_Eye.GotoAndPlay("77");
+				break;
+			Case 5:
+				Detection_Eye.GotoAndStop("99");
+				break;
+		}
+	}
+}
+
 DefaultProperties
 {
 	//this is the HUD. If the HUD is off, then this should be off
 	CurrentFrame=6
+	CurrentDangerLevel=0
 	bDisplayWithHudOff=false
 	MovieInfo = swfMovie'PRAsset.HUD.PR-HUD'
 }
