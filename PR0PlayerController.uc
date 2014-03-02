@@ -146,6 +146,7 @@ function OnPossess(SeqAct_Possess inAction)
 	//Reference to player's light
 	local PointLightComponent HeroLight;
 
+
     if(possessed==TRUE)
     {
         ReturnToNormal();
