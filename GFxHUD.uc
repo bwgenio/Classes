@@ -16,7 +16,6 @@ var int CurrentDangerLevel;
 //Create variables to hold references to the Flash MovieClips and Text Fields that will be modified
 var GFxObject HealthBar, ManaBar;
 var GFxObject Pos_Indicator, Cursor;
-var GFxObject Pos_Countdown;
 Var GFxObject Detection_Eye;
 
 
@@ -69,8 +68,7 @@ function Init(optional LocalPlayer localP)
 	HealthBar = GetVariableObject("_root.HealthBar.Bar");
 	ManaBar = GetVariableObject("_root.ManaBar.Bar");
 	Cursor = GetVariableObject("_root.Cursor");
-	Pos_Indicator = GetVariableObject("_root.Pos_Indicator");
-	Pos_Countdown = GetVariableObject("_root.Pos_Indicator.Countdown");
+	Pos_Indicator = GetVariableObject("_root.PosCircle");
 	Detection_Eye = GetVariableObject("_root.TheEye");
 }
 
@@ -120,12 +118,15 @@ function TickHUD()
 function PosCountdown()
 {
 	local string CurrentFrameString;
-	if(CurrentFrame > 0 && PR0PlayerController(getPC()).possessed==True)
+	if(CurrentFrame < 7 && PR0PlayerController(getPC()).possessed==True)
 	{
-		Pos_Indicator.GotoAndStop("2");
 		CurrentFrameString = string(CurrentFrame);
-		Pos_Countdown.GotoAndStop(CurrentFrameString);
-		CurrentFrame = CurrentFrame - 1;
+		Pos_Indicator.GotoAndStop(CurrentFrameString);
+		CurrentFrame = CurrentFrame + 1;
+	}
+	else
+	{
+		Pos_Indicator.GotoAndStop("1");
 	}
 }
 
@@ -133,8 +134,7 @@ function PosCountdown()
 function EndPosCountdown()
 {
 	Pos_Indicator.GotoAndStop("1");
-	Pos_Countdown.GotoAndStop("1");
-	CurrentFrame = 6;
+	CurrentFrame = 2;
 }
 
 /**
@@ -176,7 +176,7 @@ function gotoFrame(int DangerLevel)
 DefaultProperties
 {
 	//this is the HUD. If the HUD is off, then this should be off
-	CurrentFrame=6
+	CurrentFrame=2
 	CurrentDangerLevel=0
 	bDisplayWithHudOff=false
 	MovieInfo = swfMovie'PRAsset.HUD.PR-HUD'
