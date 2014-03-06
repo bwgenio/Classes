@@ -45,7 +45,7 @@ function ModifyLightIntensity()
 	}
 }
 
-exec function bool IsCursorOnEnemy()
+function bool IsCursorOnEnemy()
 {
 	//Pawn's location. The start of the trace
 	local Vector out_Location;
@@ -207,7 +207,7 @@ function ReturnToNormal()
 	{
 		return;
 	}
-
+	
     possessed=FALSE;
     EnemyPawn = Pawn;
     UnPossess();

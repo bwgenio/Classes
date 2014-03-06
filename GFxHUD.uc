@@ -69,7 +69,8 @@ function Init(optional LocalPlayer localP)
 	HealthBar = GetVariableObject("_root.HealthBar.Bar");
 	ManaBar = GetVariableObject("_root.ManaBar.Bar");
 	Cursor = GetVariableObject("_root.Cursor");
-	Pos_Indicator = GetVariableObject("_root.PosCircle");
+	Pos_Indicator = GetVariableObject("_root.Pos_Indicator");
+	Pos_Countdown = GetVariableObject("_root.Pos_Indicator.Countdown");
 	Detection_Eye = GetVariableObject("_root.TheEye");
 }
 
@@ -119,15 +120,12 @@ function TickHUD()
 function PosCountdown()
 {
 	local string CurrentFrameString;
-	if(CurrentFrame < 7 && PR0PlayerController(getPC()).possessed==True)
+	if(CurrentFrame > 0 && PR0PlayerController(getPC()).possessed==True)
 	{
+		Pos_Indicator.GotoAndStop("2");
 		CurrentFrameString = string(CurrentFrame);
-		Pos_Indicator.GotoAndStop(CurrentFrameString);
-		CurrentFrame = CurrentFrame + 1;
-	}
-	else
-	{
-		Pos_Indicator.GotoAndStop("1");
+		Pos_Countdown.GotoAndStop(CurrentFrameString);
+		CurrentFrame = CurrentFrame - 1;
 	}
 }
 
@@ -136,9 +134,8 @@ function EndPosCountdown()
 {
 	Pos_Indicator.GotoAndStop("1");
 	Pos_Countdown.GotoAndStop("1");
-	CurrentFrame = 2;
+	CurrentFrame = 6;
 }
-
 
 /**
 * Rotates between the different stages of the eye opening degrees
@@ -154,22 +151,22 @@ function gotoFrame(int DangerLevel)
 		CurrentDangerLevel = DangerLevel;
 		switch(DangerLevel)
 		{
-			Case 0:
+			Case 0: //Alertness 0
 				Detection_Eye.GotoAndStop("1");
 				break;
-			Case 1:
+			Case 1: //Alertness 1-24
 				Detection_Eye.GotoAndPlay("2");
 				break;
-			Case 2:
+			Case 2: //Alertness 25-49
 				Detection_Eye.GotoAndPlay("27");
 				break;
-			Case 3:
+			Case 3: //Alertness 50-74
 				Detection_Eye.GotoAndPlay("52");
 				break;
-			Case 4:
+			Case 4: //Alertness 75-99
 				Detection_Eye.GotoAndPlay("77");
 				break;
-			Case 5:
+			Case 5: //Only when alertness == 100
 				Detection_Eye.GotoAndStop("91");
 				break;
 		}
@@ -179,7 +176,7 @@ function gotoFrame(int DangerLevel)
 DefaultProperties
 {
 	//this is the HUD. If the HUD is off, then this should be off
-	CurrentFrame=2
+	CurrentFrame=6
 	CurrentDangerLevel=0
 	bDisplayWithHudOff=false
 	MovieInfo = swfMovie'PRAsset.HUD.PR-HUD'
