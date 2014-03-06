@@ -18,26 +18,6 @@ var GFxObject HealthBar, ManaBar;
 var GFxObject Pos_Indicator, Cursor;
 Var GFxObject Detection_Eye;
 
-
-//  Function to round a float value to an int
-function int roundNum(float NumIn) 
-{
-	local int iNum;
-	local float fNum;
-
-	fNum = NumIn;
-	iNum = int(fNum);
-	fNum -= iNum;
-	if (fNum >= 0.5f) 
-	{
-		return (iNum + 1);
-	}
-	else 
-	{
-		return iNum;
-	}
-}
-
 //presets the mouse location to 0,0
 function CaptureMouse(bool IsEnabled)
 {
@@ -45,12 +25,6 @@ function CaptureMouse(bool IsEnabled)
 	GetGameViewportClient().GetViewportSize(screensize);
 	GetGameViewportClient().SetMouse(0, 0);
 	//bCaptureMouseInput = IsEnabled;
-}
-
-//  Function to return a percentage from a value and a maximum
-function int getPrc(int val, int max)
-{
-	return roundNum((float(val) / float(max)) * 100.0f);
 }
 
 //Called from PROHUDGfx'd PostBeginPlay()
@@ -81,7 +55,9 @@ function ReceiveMouseCoords(float x, float y)
 //Called every update Tick
 function TickHUD() 
 {
+	
 	local UTPawn UTP;
+
 	//We need to talk to the Pawn, so create a reference and check the Pawn exists
 	UTP = UTPawn(GetPC().Pawn);
 	if (UTP == None) 
@@ -101,14 +77,12 @@ function TickHUD()
 
 
 	//If the cached value for Health percentage isn't equal to the current...
-	if (LastHealthpc != getPrc(UTP.Health, UTP.HealthMax)) 
+	if (LastHealthpc != UTP.Health) 
 	{
-		//...Make it so...
-		LastHealthpc = getPrc(UTP.Health, UTP.HealthMax);
-		//...Update the bar's xscale (but don't let it go over 100)...
-		HealthBar.SetFloat("_xscale", (LastHealthpc > 100) ? 100.0f : LastHealthpc);
-		ManaBar.SetFloat("_xscale", 50.0f);
-	}
+		//...Update the bar's xscale (but don't let it go over 100 or lower than 0)...
+		LastHealthpc = UTP.Health;
+		HealthBar.SetFloat("_xscale", (LastHealthpc > 100) ? 100.0f : ((LastHealthpc <= 0) ? 0.0f :(100.0 * float(UTP.Health)) / float(UTP.HealthMax)));
+	}	
 }
 
 

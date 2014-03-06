@@ -21,8 +21,6 @@ simulated event PostBeginPlay()
 //Updated the HealthBar Upon Death
 simulated event Destroyed()
 {
-	`log("PR0PC DESTROYED IS Called !");
-	PR0HUDGfx(myHUD).HudMovie.HealthBar.SetFloat("_width", 0.0f);
 	super.Destroyed();
 }
 

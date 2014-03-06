@@ -45,6 +45,20 @@ simulated event Landed(Vector HitNormal, Actor FloorActor)
 	SetPhysics(PHYS_Walking);
 }
 
+simulated event playDying(class<DamageType> DamageType, vector HitLoc)
+{
+	local PR0PlayerController PC;
+	ForEach LocalPlayerControllers(class'PR0PlayerController', PC)
+		{
+			if( pc.ViewTarget == self )
+			{
+				if ( PR0HUDGfx(pc.MyHud)!=none )
+					PR0HUDGFx(pc.MyHud).HudMovie.TickHUD();
+				break;
+			}
+		}
+}
+
 //Override to make player mesh visible by default
 simulated event BecomeViewTarget(PlayerController PC)
 {
