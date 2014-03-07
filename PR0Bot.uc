@@ -104,15 +104,17 @@ event SeePlayer(Pawn Seen)
 			//Increase the alertness
 			Alertness += 5;
 			UpdateAlertness();
-			`log("DIVISION "$Alertness$ " IS "$FCeil(float(Alertness)/25.0f));
 			return;
 		}
 		else
 		{
 			//Player is too far to be seen by the bot.
 			//Reset the alertness back to zero
-			Alertness = 0;
-			UpdateAlertness();
+			if(Alertness != 0)
+			{
+				Alertness = 0;
+				UpdateAlertness();
+			}
 			Target = none;
 			Seen = none;
 			return;
@@ -172,6 +174,11 @@ auto state PathFinding
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN STATE PATHFINDING FROM "$PreviousStateName);
+		if(Alertness != 0)
+		{
+			Alertness = 0;
+			UpdateAlertness();
+		}
 		if (PreviousStateName != 'None')
 		{
 			Pawn.TriggerEventClass(class'SeqEvent_StateChange', Pawn);
@@ -317,7 +324,6 @@ Begin:
 
 state ChasePlayer
 {
-
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN CHASEPLAYER STATE FROM "$PreviousStateName);
@@ -335,7 +341,9 @@ state ChasePlayer
 	function AbortChase()
 	{
 		//ChaseTimer has been depleted and bot goes back to pathfinding
-		`log("TIMER RUNS OUT. BACK TO PATHFINDING");
+		WorldInfo.Game.Broadcast(self,"TIMER RUNS OUT. BACK TO PATHFINDING");
+		Alertness = 0;
+		UpdateAlertness();
 		GotoState('PathFinding');
 	}
 
@@ -343,35 +351,21 @@ Begin:
 	//Enemy position will be updated from SeePlayer function.
 	//SeePlayer function will update Target variable, which will be used in ChasingPlayer function
 
-	if(ChaseTimer <= 0)
-	{
-		//Bot running out of ChaseTimer, so Chase activity will be ceased and back to Pathfinding state
-		//Reset ChaseTimer back to default
-		ChaseTimer = Default.ChaseTimer;
-		//Reset the Bot's alertness to zero
-		Alertness = 0;
-		UpdateAlertness();
-		`log("CHASE TIMER OUT");
-		//Reset Bot's state to pathfinding
-		GotoState('PathFinding');
-	}
-	else if(Target != none && ActorReachable(Target))
+	if(Target != none && ActorReachable(Target))
 	{
 		
 		if(VSize(Target.Location - Pawn.Location) < MaxFireDistance)
 		{
 			//The Target is insdie bot's fire range.
-			`log("START FIRING AT TARGET AFTER CHASING");
-			//Reset ChaseTimer back to default
-			ChaseTimer = Default.ChaseTimer;
+			Worldinfo.Game.Broadcast(self, "START FIRING AT TARGET AFTER CHASING");
+			SetTimer(0);
 			//Start Firing the Player again
 			GotoState('Attack');
 		}
 		else
 		{
 			//Subtract ChaseTimer so bot will stop chasing the player
-			ChaseTimer -= 1;
-			`log("MOVING TOWARD THE PLAYER DIRECTLY CHASETIMER IS "$ChaseTimer);
+			WorldInfo.Game.Broadcast(self, "MOVING TOWARD THE PLAYER DIRECTLY CHASETIMER IS "$ChaseTimer);
 			//MoveToward the player directly
 			MoveToward(Target, Target, 50);
 		}
@@ -382,18 +376,21 @@ Begin:
 		{
 			//Find a new path
 			FindChasePath(TempDest);
-			//Reduce ChaseTimer so bot would stop chasing the player after a while
-			ChaseTimer -= 1;
-			`log("MOVING TO TEMPORARY DESTINATION BECAUSE PLAYER IS NOT DIRECTLY REACHABLE "$TempDest);
+			if(TempDest == none)
+			{
+				WorldInfo.Game.Broadcast(self, "TARGET UNREACHABLE");
+				AbortChase();
+			}
+			//Reduce ChaseTimer so bot would stop chasing the player after a 
+			WorldInfo.Game.Broadcast(self, "MOVING TO TEMPORARY DESTINATION BECAUSE PLAYER IS NOT DIRECTLY REACHABLE "$TempDest);
 			//Move to the temporary destination
 			MoveToward(TempDest, TempDest, 50);
 		}
 		else
 		{
 			//Actor is not reachable or target disappears
-			`log("TARGET DISAPPEARS "$Target);
-			//Reset the ChaseTimer for future combat
-			ChaseTimer = Default.ChaseTimer;
+			WorldInfo.Game.Broadcast(self, "TARGET DISAPPEARS "$Target);
+			SetTimer(0);
 			//Resets the alertness back to zero
 			Alertness = 0;
 			UpdateAlertness();
@@ -402,7 +399,7 @@ Begin:
 		}
 	}
 
-	//Sleep(0.5);
+	Sleep(0.1);
 	Goto('Begin');
 }
 
@@ -412,10 +409,9 @@ state Suspicion
 
 	function BeginState(Name PreviousStateName)
 	{
-		`log("BOT IS NOW IN SUSPICION STATE FROM "$PreviousStateName$"TEMPDEST IS "$TempDest);
+		`log("BOT IS NOW IN SUSPICION STATE FROM "$PreviousStateName$" TEMPDEST IS "$TempDest);
 		Alertness = 50;
 		UpdateAlertness();
-		HudMovie.gotoFrame(2);
 	}
 
 	function bool Suspicious()
@@ -429,7 +425,6 @@ state Suspicion
 			WorldInfo.Game.Broadcast(self, "TRUE DISTANCE "$Distance$" Alertness "$Alertness);
 			//Increase the alertness if player is still inside the bot's field of vision
 			Alertness += 5;
-			`log("DIVISION "$Alertness$ " IS "$FCeil(float(Alertness)/25.0f));
 			UpdateAlertness();
 			return true;
 		}
@@ -444,8 +439,7 @@ state Suspicion
 		{
 			//Else player is away and alertness will decrease
 			WorldInfo.Game.Broadcast(self, "TOO FAR "$Distance);
-			HUDMovie.gotoFrame(Alertness/25);
-			Alertness -= 5;
+			Alertness -= 10;
 			UpdateAlertness();
 			return false;
 		}
@@ -485,7 +479,6 @@ DefaultProperties
 	MaxFireDistance = 600
 	Alertness=0
 	ChaseTimer=3
-	//bStatic = false
 
 	//To see in kismet (Selected Actor, add event using actor)
 	//SupportedEvents.Add(class'SeqEvent_TriggerAlarm')

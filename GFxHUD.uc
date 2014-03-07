@@ -113,7 +113,7 @@ function EndPosCountdown()
 
 /**
 * Rotates between the different stages of the eye opening degrees
-* @Param=DangerLevel, int between 0 and 6. 
+* @Param=DangerLevel, int between 0 and 5. 
 */
 
 function gotoFrame(int DangerLevel)
