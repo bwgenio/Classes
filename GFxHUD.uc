@@ -68,11 +68,11 @@ function TickHUD()
 	//checkes whether the cursor is aiming at an enemy, and changes to the approperiate cursor image
 	if(PR0PlayerController(getPC()).IsCursorOnEnemy() == True)
 	{
-		Cursor.GotoAndStop("2");	
+		Cursor.GotoAndPlay("25");	
 	}
 	else
 	{
-		Cursor.GotoAndStop("1");
+		Cursor.GotoAndPlay("1");
 	}
 
 
@@ -85,6 +85,29 @@ function TickHUD()
 	}	
 }
 
+/**
+ * Calls The ActionScript Function for closing the Eye.
+ * @param = The minimum frame to reach.
+ */
+function CallAsFunction(float arg1)
+{
+	
+	local ASValue Param0;
+	local array<ASValue> args;
+    local string FunctionPath, InvokeFunction;
+
+	//Set the type of arguemnt to Number (float) as specified inside the actionscript function
+	Param0.Type = AS_Number;
+	Param0.n = arg1;
+	//add the argument to the array of arguments
+	args.Length = 1;
+    args[0] = Param0;
+	//creates a reference to the function which is located on the main frame hence _root
+	FunctionPath = "_root";
+	InvokeFunction = "playInReverse";
+	//calls the function
+	GetVariableObject(FunctionPath).Invoke(InvokeFunction, args);
+}
 
 //Checks whether the player is currently possessing a Pawn
 //If True, displays the the Countdown and Pos_Indicator
@@ -110,6 +133,8 @@ function EndPosCountdown()
 	Pos_Indicator.GotoAndStop("1");
 	CurrentFrame = 2;
 }
+
+
 
 /**
 * Rotates between the different stages of the eye opening degrees
