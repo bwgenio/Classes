@@ -30,6 +30,7 @@ simulated function PostBeginPlay()
 {
 
 	super.PostBeginPlay();
+	//Initialize reference to the player's HUD so it so bot can give alertness to player
 	HUDMovie = PR0HUDGfx(WorldInfo.GetALocalPlayerController().myHUD).HudMovie;
 
 	//Initiate the state
@@ -102,8 +103,8 @@ event SeePlayer(Pawn Seen)
 		{
 			//Increase the alertness
 			Alertness += 5;
+			UpdateAlertness();
 			`log("DIVISION "$Alertness$ " IS "$FCeil(float(Alertness)/25.0f));
-			HUDMovie.gotoFrame(FCeil(float(Alertness)/25.0f));
 			return;
 		}
 		else
@@ -111,6 +112,7 @@ event SeePlayer(Pawn Seen)
 			//Player is too far to be seen by the bot.
 			//Reset the alertness back to zero
 			Alertness = 0;
+			UpdateAlertness();
 			Target = none;
 			Seen = none;
 			return;
@@ -118,6 +120,14 @@ event SeePlayer(Pawn Seen)
 	}
 	
 	return;
+}
+
+/**
+ * Called when Bot's alertness is changed to update the player's alertness HUD
+ */
+function UpdateAlertness()
+{
+	HUDMovie.gotoFrame(FCeil(float(Alertness)/25.0f));
 }
 
 event HearNoise(float Loudness, Actor NoiseMaker, optional Name NoiseType)
@@ -188,6 +198,7 @@ state Hostile
 	{
 		`log("BOT IS NOW IN STATE HOSTILE FROM "$PreviousStateName);
 		Alertness = 100;
+		UpdateAlertness();
 		Pawn.TriggerEventClass(class'SeqEvent_StateChange', Pawn);
 	}
 
@@ -339,6 +350,7 @@ Begin:
 		ChaseTimer = Default.ChaseTimer;
 		//Reset the Bot's alertness to zero
 		Alertness = 0;
+		UpdateAlertness();
 		`log("CHASE TIMER OUT");
 		//Reset Bot's state to pathfinding
 		GotoState('PathFinding');
@@ -384,6 +396,7 @@ Begin:
 			ChaseTimer = Default.ChaseTimer;
 			//Resets the alertness back to zero
 			Alertness = 0;
+			UpdateAlertness();
 			//Return to pathfinding state
 			GotoState('PathFinding');
 		}
@@ -401,6 +414,7 @@ state Suspicion
 	{
 		`log("BOT IS NOW IN SUSPICION STATE FROM "$PreviousStateName$"TEMPDEST IS "$TempDest);
 		Alertness = 50;
+		UpdateAlertness();
 		HudMovie.gotoFrame(2);
 	}
 
@@ -416,7 +430,7 @@ state Suspicion
 			//Increase the alertness if player is still inside the bot's field of vision
 			Alertness += 5;
 			`log("DIVISION "$Alertness$ " IS "$FCeil(float(Alertness)/25.0f));
-			HUDMovie.gotoFrame(FCeil(float(Alertness)/25.0f));
+			UpdateAlertness();
 			return true;
 		}
 		else if(Distance <= HostileDistance)
@@ -432,6 +446,7 @@ state Suspicion
 			WorldInfo.Game.Broadcast(self, "TOO FAR "$Distance);
 			HUDMovie.gotoFrame(Alertness/25);
 			Alertness -= 5;
+			UpdateAlertness();
 			return false;
 		}
 		
