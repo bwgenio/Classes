@@ -68,11 +68,13 @@ function TickHUD()
 	//checkes whether the cursor is aiming at an enemy, and changes to the approperiate cursor image
 	if(PR0PlayerController(getPC()).IsCursorOnEnemy() == True)
 	{
+		if(Cursor.GetFloat("_currentFrame") < 20)
 		Cursor.GotoAndPlay("25");	
 	}
 	else
 	{
-		Cursor.GotoAndPlay("1");
+		if(Cursor.GetFloat("_currentFrame") > 20) 
+			Cursor.GotoAndPlay("1");
 	}
 
 
