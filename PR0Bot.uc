@@ -25,10 +25,11 @@ var(Combat) float ChaseTimer;
 
 //Reference to HUDMovie in GFxHUD
 var(HUD) GFxHUD HUDMovie;
+//Current Alertness stage. HUD only updated if alertness stage is different
+var(HUD) int CurrentAlertnessFrame;
 
 simulated function PostBeginPlay()
 {
-
 	super.PostBeginPlay();
 	//Initialize reference to the player's HUD so it so bot can give alertness to player
 	HUDMovie = PR0HUDGfx(WorldInfo.GetALocalPlayerController().myHUD).HudMovie;
@@ -45,6 +46,12 @@ event Possess(Pawn inPawn, bool bVehicleTransition)
 
 function PR0ConfigureBot(SeqAct_PR0ConfigureBot Action)
 {
+	if(Action == none)
+	{
+		StartNode = none;
+		EndNode = none;
+		return;
+	}
 	//Initialize StartNode
 	StartNode = Action.StartNode;
 	//Initialize End Node
@@ -102,8 +109,7 @@ event SeePlayer(Pawn Seen)
 		else if(Distance <= SuspicionDistance)
 		{
 			//Increase the alertness
-			Alertness += 5;
-			UpdateAlertness();
+			UpdateAlertness(Alertness+5);
 			return;
 		}
 		else
@@ -112,8 +118,7 @@ event SeePlayer(Pawn Seen)
 			//Reset the alertness back to zero
 			if(Alertness != 0)
 			{
-				Alertness = 0;
-				UpdateAlertness();
+				UpdateAlertness(0);
 			}
 			Target = none;
 			Seen = none;
@@ -127,9 +132,22 @@ event SeePlayer(Pawn Seen)
 /**
  * Called when Bot's alertness is changed to update the player's alertness HUD
  */
-function UpdateAlertness()
+function UpdateAlertness(int NewAlertness)
 {
-	HUDMovie.gotoFrame(FCeil(float(Alertness)/25.0f));
+	//The new frame resulting from the increase/decrease of alertness
+	local int NewAlertnessFrame;
+	
+	//Determine the new frame and check if the eye HUD needs to be opened more
+	NewAlertnessFrame = FCeil(float(NewAlertness)/25.0f);
+	
+	if(NewAlertnessFrame != CurrentAlertnessFrame)
+	{
+		CurrentAlertnessFrame = NewAlertnessFrame;
+		HUDMovie.gotoFrame(NewAlertnessFrame);
+	}
+
+	//Update bot's alertness
+	Alertness = NewAlertness;
 }
 
 event HearNoise(float Loudness, Actor NoiseMaker, optional Name NoiseType)
@@ -176,12 +194,7 @@ auto state PathFinding
 		`log("BOT IS NOW IN STATE PATHFINDING FROM "$PreviousStateName);
 		if(Alertness != 0)
 		{
-			Alertness = 0;
-			UpdateAlertness();
-		}
-		if (PreviousStateName != 'None')
-		{
-			Pawn.TriggerEventClass(class'SeqEvent_StateChange', Pawn);
+			UpdateAlertness(0);
 		}
 	}
 
@@ -194,6 +207,10 @@ Begin:
 		MoveToward(EndNode, EndNode, 50);
 		Sleep(5);
 	}
+	else
+	{
+		GotoState('Idle');
+	}
 	Goto('Begin');
 }
 
@@ -204,9 +221,7 @@ state Hostile
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN STATE HOSTILE FROM "$PreviousStateName);
-		Alertness = 100;
-		UpdateAlertness();
-		Pawn.TriggerEventClass(class'SeqEvent_StateChange', Pawn);
+		UpdateAlertness(100);
 	}
 
 	function FindClosestAlarm()
@@ -256,7 +271,6 @@ Begin:
 			`log("MOVING TOWARD "$ClosestAlarm);
 			MoveToward(ClosestAlarm, ClosestAlarm);
 		}
-		//Pawn.TriggerEventClass(class'SeqEvent_TriggerAlarm', Pawn);
 	}
 
 	Sleep(5);
@@ -270,7 +284,6 @@ state Attack
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN STATE ATTACK FROM "$PreviousStateName);
-		Pawn.TriggerEventClass(class'SeqEvent_StateChange', Pawn);
 	}
 
 	function AttackPlayer()
@@ -327,7 +340,6 @@ state ChasePlayer
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN CHASEPLAYER STATE FROM "$PreviousStateName);
-		Pawn.TriggerEventClass(class'SeqEvent_StateChange', Pawn);
 		SetTimer(ChaseTimer, false, 'AbortChase');
 	}
 
@@ -342,8 +354,7 @@ state ChasePlayer
 	{
 		//ChaseTimer has been depleted and bot goes back to pathfinding
 		WorldInfo.Game.Broadcast(self,"TIMER RUNS OUT. BACK TO PATHFINDING");
-		Alertness = 0;
-		UpdateAlertness();
+		UpdateAlertness(0);
 		GotoState('PathFinding');
 	}
 
@@ -392,8 +403,7 @@ Begin:
 			WorldInfo.Game.Broadcast(self, "TARGET DISAPPEARS "$Target);
 			SetTimer(0);
 			//Resets the alertness back to zero
-			Alertness = 0;
-			UpdateAlertness();
+			UpdateAlertness(0);
 			//Return to pathfinding state
 			GotoState('PathFinding');
 		}
@@ -410,8 +420,7 @@ state Suspicion
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN SUSPICION STATE FROM "$PreviousStateName$" TEMPDEST IS "$TempDest);
-		Alertness = 50;
-		UpdateAlertness();
+		UpdateAlertness(50);
 	}
 
 	function bool Suspicious()
@@ -424,8 +433,7 @@ state Suspicion
 		{
 			WorldInfo.Game.Broadcast(self, "TRUE DISTANCE "$Distance$" Alertness "$Alertness);
 			//Increase the alertness if player is still inside the bot's field of vision
-			Alertness += 5;
-			UpdateAlertness();
+			UpdateAlertness(Alertness+5);
 			return true;
 		}
 		else if(Distance <= HostileDistance)
@@ -439,8 +447,7 @@ state Suspicion
 		{
 			//Else player is away and alertness will decrease
 			WorldInfo.Game.Broadcast(self, "TOO FAR "$Distance);
-			Alertness -= 10;
-			UpdateAlertness();
+			UpdateAlertness(Alertness - 10);
 			return false;
 		}
 		
@@ -459,14 +466,15 @@ Begin:
 		`log("NOT SUSPICIOUS AT ALL");
 	}
 
-	if(Alertness == 0)
+	if(Alertness <= 0)
 	{
 		GotoState('Pathfinding');
 	}
-	else if(Alertness == 100)
+	else if(Alertness >= 100)
 	{
 		GotoState('Hostile');
 	}
+
 	Sleep(1);
 	Goto('Begin');
 }
@@ -479,6 +487,10 @@ DefaultProperties
 	MaxFireDistance = 600
 	Alertness=0
 	ChaseTimer=3
+	CurrentAlertnessFrame = 0
+
+	StartNode = none
+	EndNode = none
 
 	//To see in kismet (Selected Actor, add event using actor)
 	//SupportedEvents.Add(class'SeqEvent_TriggerAlarm')

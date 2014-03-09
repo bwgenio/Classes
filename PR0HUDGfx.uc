@@ -66,7 +66,7 @@ function Vector GetMouseCoords()
     Canvas.DrawText( StringMessage, false, , , TextRenderInfo );
 
 	// Perform a trace to get the actual mouse world location.
-	Trace(HitLocation, HitNormal, WorldCursorOrigin + WorldDirection * 1000, WorldCursorOrigin , false,,, TRACEFLAG_Bullet);
+	Trace(HitLocation, HitNormal, WorldCursorOrigin + WorldDirection * 1000, WorldCursorOrigin , false,,, TRACEFLAG_PhysicsVolumes);
 
 	return HitLocation;
 }

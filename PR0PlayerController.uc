@@ -152,7 +152,6 @@ function OnPossess(SeqAct_Possess inAction)
 	//Reference to player's light
 	local PointLightComponent HeroLight;
 
-
     if(possessed==TRUE)
     {
         ReturnToNormal();
@@ -165,8 +164,11 @@ function OnPossess(SeqAct_Possess inAction)
 			//Target to possess is found, and we will possess it
 			possessed=TRUE;
 			PR0HUDGfx(myHUD).HudMovie.PosCountdown();
+
 			//Stop Bot firing when he is firing
 			PawnToPossess.StopFire(0);
+			//Reset's the pawn alertness
+			//PR0Bot(PawnToPossess.Controller).UpdateAlertness(0);
 
 			//Hide PlayerPawn, Set Collision to NoCollision, and Turn off HeroLight
             OldPawn = Pawn;
