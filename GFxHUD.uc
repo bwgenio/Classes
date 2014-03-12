@@ -145,11 +145,41 @@ function EndPosCountdown()
 
 function gotoFrame(int DangerLevel)
 {
-	if (CurrentDangerLevel == DangerLevel)
+	//Reference to each Bot in the level
+	local PR0Bot TempBot;
+	//Reference to the highest alertness
+	local int HighestAlertnessFrame;
+
+	HighestAlertnessFrame = 0;
+
+	//Loop each bot and find the highest alertness frame among every bots
+	foreach class'WorldInfo'.static.GetWorldInfo().AllControllers(class'PR0Bot', TempBot)
+	{
+		if(HighestAlertnessFrame < TempBot.CurrentAlertnessFrame)
+		{
+			HighestAlertnessFrame = TempBot.CurrentAlertnessFrame;
+		}
+	}
+
+	//Compare HighestAlertnessFrame and CurrentDangerLevel of the HUD
+	//if (HighestAlertnessFrame == DangerLevel)
+	if(HighestAlertnessFrame == CurrentDangerLevel)
+	{
 		return;
+	}
+	//else if(CurrentDangerLevel > DangerLevel)
+	else if(HighestAlertnessFrame < CurrentDangerLevel)
+	{
+		`log("DECREASE FROM "$CurrentDangerLevel$" TO "$HighestAlertnessFrame);
+		//CallAsFunction(DangerLevel*25);
+		CallAsFunction(HighestAlertnessFrame*25);
+		//CurrentDangerLevel = DangerLevel;
+		CurrentDangerLevel = HighestAlertnessFrame;
+	}
 	else
 	{
-		CurrentDangerLevel = DangerLevel;
+		//CurrentDangerLevel = DangerLevel;
+		CurrentDangerLevel = HighestAlertnessFrame;
 		switch(DangerLevel)
 		{
 			Case 0: //Alertness 0

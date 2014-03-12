@@ -34,6 +34,8 @@ simulated function PostBeginPlay()
 	//Initialize reference to the player's HUD so it so bot can give alertness to player
 	HUDMovie = PR0HUDGfx(WorldInfo.GetALocalPlayerController().myHUD).HudMovie;
 
+	//Alertness = PR0Game(WorldInfo.Game).Alertness;
+
 	//Initiate the state
 	GotoState('PathFinding');
 }
@@ -100,7 +102,7 @@ event SeePlayer(Pawn Seen)
 			return;
 			//Hostile state will try to trigger the alarm and kill the player
 		}
-		else if(Alertness == 50)
+		else if(Alertness == 25)
 		{
 			TempDest = Target;
 			GotoState('Suspicion');
@@ -116,8 +118,11 @@ event SeePlayer(Pawn Seen)
 		{
 			//Player is too far to be seen by the bot.
 			//Reset the alertness back to zero
+			//TODO: BUGGY WITH 2 BOTS
 			if(Alertness != 0)
 			{
+				`log(WorldInfo.GetALocalPlayerController().Pawn);
+				`log("CALLED BY "$self$" DISTANCE IS "$Distance$" SEEN IS "$Seen);
 				UpdateAlertness(0);
 			}
 			Target = none;
@@ -136,17 +141,24 @@ function UpdateAlertness(int NewAlertness)
 {
 	//The new frame resulting from the increase/decrease of alertness
 	local int NewAlertnessFrame;
-	
+	`log("UPDATE ALERTNESS OF "$self$" TO "$NewAlertness);
 	//Determine the new frame and check if the eye HUD needs to be opened more
 	NewAlertnessFrame = FCeil(float(NewAlertness)/25.0f);
 	
+	//TODO: Update alertness should always show the highest alertness of all bots
 	if(NewAlertnessFrame != CurrentAlertnessFrame)
 	{
 		CurrentAlertnessFrame = NewAlertnessFrame;
 		HUDMovie.gotoFrame(NewAlertnessFrame);
 	}
 
-	//Update bot's alertness
+	//Updates global alertness if it is smaller than local alertness
+	//if(PR0Game(WorldInfo.Game).Alertness < NewAlertness)
+	//{
+	//	PR0Game(WorldInfo.Game).Alertness = NewAlertness;
+	//}
+
+	//Update bot's alertness	
 	Alertness = NewAlertness;
 }
 
@@ -156,8 +168,8 @@ event HearNoise(float Loudness, Actor NoiseMaker, optional Name NoiseType)
 	super.HearNoise(Loudness, NoiseMaker, NoiseType);
 
 	//Bot will walk towards the NoiseMaker if the loudness is greater or equal to 1
-	//And the sound is made inside his SuspicionDistance
-	if(Loudness >= 1.0 && VSize(NoiseMaker.Location - Pawn.Location) <= SuspicionDistance)
+	//And the sound is0 made inside his SuspicionDistance
+	if(Loudness >= 1. && VSize(NoiseMaker.Location - Pawn.Location) <= SuspicionDistance)
 	{ 
 		`log("MOVING TOWARDS "$NoiseMaker);
 		TempDest = NoiseMaker;
@@ -220,6 +232,7 @@ state Hostile
 
 	function BeginState(Name PreviousStateName)
 	{
+		//PR0Game(WorldInfo.Game).NumberOfAlertedBots += 1;
 		`log("BOT IS NOW IN STATE HOSTILE FROM "$PreviousStateName);
 		UpdateAlertness(100);
 	}
@@ -337,6 +350,8 @@ Begin:
 
 state ChasePlayer
 {
+	ignores HearNoise;
+
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN CHASEPLAYER STATE FROM "$PreviousStateName);
@@ -400,7 +415,7 @@ Begin:
 		else
 		{
 			//Actor is not reachable or target disappears
-			WorldInfo.Game.Broadcast(self, "TARGET DISAPPEARS "$Target);
+			`log("TARGET DISAPPEARS "$Target);
 			SetTimer(0);
 			//Resets the alertness back to zero
 			UpdateAlertness(0);
@@ -420,7 +435,7 @@ state Suspicion
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN SUSPICION STATE FROM "$PreviousStateName$" TEMPDEST IS "$TempDest);
-		UpdateAlertness(50);
+		UpdateAlertness(20);
 	}
 
 	function bool Suspicious()
@@ -447,7 +462,7 @@ state Suspicion
 		{
 			//Else player is away and alertness will decrease
 			WorldInfo.Game.Broadcast(self, "TOO FAR "$Distance);
-			UpdateAlertness(Alertness - 10);
+			UpdateAlertness(Alertness - 5);
 			return false;
 		}
 		
@@ -481,12 +496,13 @@ Begin:
 
 DefaultProperties
 {
-	bIsPlayer = true
+	//TODO: bIsPlayer is set to false to counteract SeePlayer function seeing other AI instead of the player
+	//      should there be a problem it should be changed back to true, and update SeePlayer function to accept Player controlled pawn only
+	bIsPlayer = false
 	SuspicionDistance = 800
 	HostileDistance = 400
 	MaxFireDistance = 600
-	Alertness=0
-	ChaseTimer=3
+	ChaseTimer = 5
 	CurrentAlertnessFrame = 0
 
 	StartNode = none
