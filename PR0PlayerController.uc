@@ -228,6 +228,19 @@ function ReturnToNormal()
 	}
 }
 
+function bool TraceCheck(vector startLocation, vector endLocation, out optional vector HitNormal, out optional vector HitLocation, out optional Actor TraceCheck_HitActor)
+{
+	TraceCheck_HitActor = Trace(HitLocation, HitNormal, startLocation, endLocation, false);
+	if(TraceCheck_HitActor == none)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 state PlayerWalking
 {
 ignores SeePlayer, HearNoise, Bump;
@@ -236,11 +249,20 @@ ignores SeePlayer, HearNoise, Bump;
 	function ProcessMove(float DeltaTime, Vector NewAccel, EDoubleClickDir DoubleClickMove, Rotator DeltaRot)
 	{
 		local Rotator TempRot;
+		local DamagingLight MapLights;
 
 		//Pawn is dead or missing hence no move is required
 		if(Pawn == none)
 		{
 			return;
+		}
+
+		foreach WorldInfo.AllActors(class'DamagingLight', MapLights )
+		{
+			if(MapLights.LightComponent.bEnabled && !TraceCheck(Pawn.Location,MapLights.Location) && PointLightComponent(MapLights.LightComponent).Radius >= VSize(Pawn.Location - MapLights.Location))
+			{
+				Pawn.TakeDamage(2, self, Pawn.Location, Vect(0,0,0), class'DmgType_Crushed',,Pawn);
+			}
 		}
 
 		//ENetRole

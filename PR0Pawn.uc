@@ -170,7 +170,7 @@ DefaultProperties
     Mesh=SandboxPawnSkeletalMesh
     Components.Add(SandboxPawnSkeletalMesh)
 
-	SupportedEvents.Add(class'SeqEvent_TriggerAlarm')
-	SupportedEvents.Add(class'SeqEvent_BotStartShooting')
-	SupportedEvents.Add(class'SeqEvent_StateChange')
+	//SupportedEvents.Add(class'SeqEvent_TriggerAlarm')
+	//SupportedEvents.Add(class'SeqEvent_BotStartShooting')
+	//SupportedEvents.Add(class'SeqEvent_StateChange')
 }
