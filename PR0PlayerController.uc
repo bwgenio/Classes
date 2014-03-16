@@ -91,6 +91,15 @@ function bool IsCursorOnEnemy()
 	}
 }
 
+//gets called by kismet when trigger is touched
+//calls the function to display the tutorial messages from GfxHud
+exec function TutDisplay()
+{
+	PR0HUDGfx(myHUD).HudMovie.RootMC.SetBool("bCapture", true);
+	PR0HUDGfx(myHUD).HudMovie.bCaptureInput = true;
+	PR0HUDGfx(myHUD).HudMovie.TutDisplay();
+}
+
 exec function Actor GetPossessionTarget()
 {
 	//Pawn's location. The start of the trace

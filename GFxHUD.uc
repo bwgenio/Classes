@@ -13,10 +13,17 @@ var int CurrentFrame;
 //Current DangerLevel of the player
 var int CurrentDangerLevel;
 
+//Current Displayed Tutorial message
+var int CurrentTutorialMessage;
+
 //Create variables to hold references to the Flash MovieClips and Text Fields that will be modified
 var GFxObject HealthBar, ManaBar;
 var GFxObject Pos_Indicator, Cursor;
-Var GFxObject Detection_Eye;
+Var GFxObject Detection_Eye, Tut_Text;
+var GFxObject RootMC;
+
+//Input Capture Bool for AS
+var bool bCapture;
 
 //presets the mouse location to 0,0
 function CaptureMouse(bool IsEnabled)
@@ -44,6 +51,11 @@ function Init(optional LocalPlayer localP)
 	Cursor = GetVariableObject("_root.Cursor");
 	Pos_Indicator = GetVariableObject("_root.PosCircle");
 	Detection_Eye = GetVariableObject("_root.TheEye");
+	Tut_Text = GetVariableObject("_root.TutText");
+	RootMC = GetVariableObject("_root");
+
+	/* Get AS Vars */
+	bCapture = RootMC.GetBool("bCaptureInput");
 }
 
 // This is called from Flash. Gets the x and y coordinates from the mouse location
@@ -84,7 +96,10 @@ function TickHUD()
 		//...Update the bar's xscale (but don't let it go over 100 or lower than 0)...
 		LastHealthpc = UTP.Health;
 		HealthBar.SetFloat("_xscale", (LastHealthpc > 100) ? 100.0f : ((LastHealthpc <= 0) ? 0.0f :(100.0 * float(UTP.Health)) / float(UTP.HealthMax)));
-	}	
+	}
+
+	// Checks whether the tutorial HUD trigger has been set on
+	// Captures player Inputs and makes sure it is the proper one for the tutorial
 }
 
 /**
@@ -204,11 +219,50 @@ function gotoFrame(int DangerLevel)
 	}
 }
 
+/**
+ * Displays the Tutorial Messages. 
+ * Gets Called by TutDisplay in PC, when that is called by the kismet triggers.
+ * Increases by one for now.
+ */
+function TutDisplay()
+{
+	local string frame;
+	CurrentTutorialMessage = CurrentTutorialMessage + 1;
+	frame = string(CurrentTutorialMessage);
+	Tut_Text.gotoAndStop(frame);
+}
+
+function KeyPressed(float Key)
+{
+	`log("bCap" $bCaptureInput);
+	if(bCaptureInput == false)
+		return;
+	switch(CurrentTutorialMessage)
+	{
+		case 2:
+			if(Key == 32)
+			{
+				RootMC.SetBool("bCapture", false);
+				bCaptureInput = false;
+				TutDisplay();
+				break;
+			}
+		case 3:
+			break;
+		case 5:
+			break;
+		case 7:
+			break;
+	}
+}
+
 DefaultProperties
 {
 	//this is the HUD. If the HUD is off, then this should be off
 	CurrentFrame=2
 	CurrentDangerLevel=0
+	CurrentTutorialMessage = 1
+	bCaptureInput = false
 	bDisplayWithHudOff=false
 	MovieInfo = swfMovie'PRAsset.HUD.PR-HUD'
 }
