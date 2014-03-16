@@ -13,6 +13,9 @@ var(Ability) int MaxLightRange;
 //The minimum range of souluminescence
 var(Ability) int MinLightRange;
 
+//Damage point to the player's health when he is under light
+var(Logic) int LightDamage;
+
 simulated event PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -256,12 +259,21 @@ ignores SeePlayer, HearNoise, Bump;
 		{
 			return;
 		}
-
-		foreach WorldInfo.AllActors(class'DamagingLight', MapLights )
+		
+		//Damage to light only applicable when player is in ghost form
+		if(possessed == false)
 		{
-			if(MapLights.LightComponent.bEnabled && !TraceCheck(Pawn.Location,MapLights.Location) && PointLightComponent(MapLights.LightComponent).Radius >= VSize(Pawn.Location - MapLights.Location))
+			foreach WorldInfo.AllActors(class'DamagingLight', MapLights )
 			{
-				Pawn.TakeDamage(2, self, Pawn.Location, Vect(0,0,0), class'DmgType_Crushed',,Pawn);
+				//Check if light is enabled and player is within the light's radius
+				if(MapLights.LightComponent.bEnabled && PointLightComponent(MapLights.LightComponent).Radius >= VSize(Pawn.Location - MapLights.Location))
+				{
+					//Check if player inside the lightcone, if he does, then take damage
+					if (SpotLightComponent(MapLights.LightComponent).OuterConeAngle >= (180 - RadToDeg * Atan2((Pawn.Location.X - MapLights.Location.X),(Pawn.Location.Z - MapLights.Location.Z))))
+					{
+						Pawn.TakeDamage(2, self, Pawn.Location, Vect(0,0,0), class'DmgType_Crushed',,Pawn);
+					}			
+				}
 			}
 		}
 
@@ -331,7 +343,7 @@ ignores SeePlayer, HearNoise, Bump;
 		CursorLocation.Y = 0;
 		
 		//Set the Pawn's rotation
-		SetRotation(Rotator(Normal(CursorLocation - Location)));
+		SetRotation(Rotator(Normal(CursorLocation - Pawn.Location - vect(0,0,50))));
 	}
 }
 
@@ -346,5 +358,6 @@ DefaultProperties
 	LightDimRate=5
 	MaxLightRange=500
 	MinLightRange=100
+	LightDamage=2
 	InputClass=class'PR0.MouseInterfacePlayerInput'
 }
