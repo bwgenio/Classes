@@ -231,19 +231,6 @@ function ReturnToNormal()
 	}
 }
 
-function bool TraceCheck(vector startLocation, vector endLocation, out optional vector HitNormal, out optional vector HitLocation, out optional Actor TraceCheck_HitActor)
-{
-	TraceCheck_HitActor = Trace(HitLocation, HitNormal, startLocation, endLocation, false);
-	if(TraceCheck_HitActor == none)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
 state PlayerWalking
 {
 ignores SeePlayer, HearNoise, Bump;
@@ -271,7 +258,7 @@ ignores SeePlayer, HearNoise, Bump;
 					//Check if player inside the lightcone, if he does, then take damage
 					if (SpotLightComponent(MapLights.LightComponent).OuterConeAngle >= (180 - RadToDeg * Atan2((Pawn.Location.X - MapLights.Location.X),(Pawn.Location.Z - MapLights.Location.Z))))
 					{
-						Pawn.TakeDamage(2, self, Pawn.Location, Vect(0,0,0), class'DmgType_Crushed',,Pawn);
+						Pawn.TakeDamage(LightDamage, self, Pawn.Location, Vect(0,0,0), class'DmgType_Crushed',,Pawn);
 					}			
 				}
 			}

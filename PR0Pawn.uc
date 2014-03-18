@@ -45,6 +45,18 @@ simulated event Landed(Vector HitNormal, Actor FloorActor)
 	SetPhysics(PHYS_Walking);
 }
 
+simulated event TakeDamage(int DamageAmount, Controller EventInstigator, Vector HitLocation, Vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
+{
+	if(Controller.IsA('PR0Bot'))
+	{
+		//Alert enemy bot when they are hit 
+		PR0Bot(Controller).AlertBotWhenHit(UTWeapon(DamageCauser).Owner);
+	}
+
+	//Overwrites the momentum so the player won't be flying back when shot
+	super.TakeDamage(DamageAmount, EventInstigator, HitLocation, Vect(0,0,0), DamageType, HitInfo, DamageCauser);
+}
+
 simulated event playDying(class<DamageType> DamageType, vector HitLoc)
 {
 	local PR0PlayerController PC;

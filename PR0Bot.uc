@@ -34,8 +34,6 @@ simulated function PostBeginPlay()
 	//Initialize reference to the player's HUD so it so bot can give alertness to player
 	HUDMovie = PR0HUDGfx(WorldInfo.GetALocalPlayerController().myHUD).HudMovie;
 
-	//Alertness = PR0Game(WorldInfo.Game).Alertness;
-
 	//Initiate the state
 	GotoState('PathFinding');
 }
@@ -58,6 +56,20 @@ function PR0ConfigureBot(SeqAct_PR0ConfigureBot Action)
 	StartNode = Action.StartNode;
 	//Initialize End Node
 	EndNode = Action.EndNode;
+}
+
+function AlertBotWhenHit(Actor DamageCauser)
+{
+	if(Alertness > 0)
+	{
+		//Bot is already alerted, no need to alert the bot
+		return;
+	}
+	else
+	{
+		TempDest = DamageCauser;
+		GotoState('Suspicion');
+	}
 }
 
 event SeePlayer(Pawn Seen)
@@ -152,12 +164,6 @@ function UpdateAlertness(int NewAlertness)
 		HUDMovie.gotoFrame(NewAlertnessFrame);
 	}
 
-	//Updates global alertness if it is smaller than local alertness
-	//if(PR0Game(WorldInfo.Game).Alertness < NewAlertness)
-	//{
-	//	PR0Game(WorldInfo.Game).Alertness = NewAlertness;
-	//}
-
 	//Update bot's alertness	
 	Alertness = NewAlertness;
 }
@@ -232,7 +238,6 @@ state Hostile
 
 	function BeginState(Name PreviousStateName)
 	{
-		//PR0Game(WorldInfo.Game).NumberOfAlertedBots += 1;
 		`log("BOT IS NOW IN STATE HOSTILE FROM "$PreviousStateName);
 		UpdateAlertness(100);
 	}
@@ -283,6 +288,12 @@ Begin:
 		{
 			`log("MOVING TOWARD "$ClosestAlarm);
 			MoveToward(ClosestAlarm, ClosestAlarm);
+		}
+		else
+		{
+			//No alarm is found, bot should attack the player
+			TempDest = Target;
+			GotoState('Attack');
 		}
 	}
 
