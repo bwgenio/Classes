@@ -7,6 +7,9 @@ var float MouseY;
 //Create a Health Cache variable
 var float LastHealthpc;
 
+//Create a Luminosity cache variable
+var float LastLumusPoints;
+
 //Current Frame of the Countdown
 var int CurrentFrame;
 
@@ -63,16 +66,18 @@ function TickHUD()
 {
 	
 	local UTPawn UTP;
-
+	local PR0PlayerController PC;
 	//We need to talk to the Pawn, so create a reference and check the Pawn exists
 	UTP = UTPawn(GetPC().Pawn);
+	PC = PR0PlayerController(GetPC());
+
 	if (UTP == None) 
 	{
 		return;
 	}
 
 	//checkes whether the cursor is aiming at an enemy, and changes to the approperiate cursor image
-	if(PR0PlayerController(getPC()).IsCursorOnEnemy() == True)
+	if(PC.IsCursorOnEnemy() == True)
 	{
 		if(Cursor.GetFloat("_currentFrame") < 20)
 		Cursor.GotoAndPlay("25");	
@@ -89,9 +94,16 @@ function TickHUD()
 	{
 		//...Update the bar's xscale (but don't let it go over 100 or lower than 0)...
 		LastHealthpc = UTP.Health;
-		HealthBar.SetFloat("_xscale", (LastHealthpc > 100) ? 100.0f : ((LastHealthpc <= 0) ? 0.0f :(100.0 * float(UTP.Health)) / float(UTP.HealthMax)));
+		HealthBar.SetFloat("_xscale", (LastHealthpc > 100) ? 100.0f : ((LastHealthpc <= 0) ? 0.0f : (100.0 * float(UTP.Health)) / float(UTP.HealthMax)));
 	}
 
+	// Updates the Lumus Bar according to how much lumus points are available.
+	if(LastLumusPoints != PC.LuminosityPoints)
+	{
+		LastLumusPoints = PC.LuminosityPoints;
+		LumusBar.SetFloat("_xscale", (LastLumusPoints > (class'PR0PlayerController'.Default.LuminosityPoints)) ? 100.0f : ((LastLumusPoints <= 0) ? 0.0f : (100.0 * float(PC.LuminosityPoints) / float(class'PR0PlayerController'.Default.LuminosityPoints))));
+	}
+	
 	// Checks whether the tutorial HUD trigger has been set on
 	// Captures player Inputs and makes sure it is the proper one for the tutorial
 }
