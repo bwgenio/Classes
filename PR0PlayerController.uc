@@ -95,8 +95,7 @@ function bool IsCursorOnEnemy()
 //calls the function to display the tutorial messages from GfxHud
 exec function TutDisplay()
 {
-	PR0HUDGfx(myHUD).HudMovie.RootMC.SetBool("bCapture", true);
-	PR0HUDGfx(myHUD).HudMovie.bCaptureInput = true;
+	//GotoState('PlayerWaiting');
 	PR0HUDGfx(myHUD).HudMovie.TutDisplay();
 }
 

@@ -17,13 +17,10 @@ var int CurrentDangerLevel;
 var int CurrentTutorialMessage;
 
 //Create variables to hold references to the Flash MovieClips and Text Fields that will be modified
-var GFxObject HealthBar, ManaBar;
+var GFxObject HealthBar, LumusBar;
 var GFxObject Pos_Indicator, Cursor;
 Var GFxObject Detection_Eye, Tut_Text;
 var GFxObject RootMC;
-
-//Input Capture Bool for AS
-var bool bCapture;
 
 //presets the mouse location to 0,0
 function CaptureMouse(bool IsEnabled)
@@ -46,16 +43,13 @@ function Init(optional LocalPlayer localP)
 	LastHealthpc = -1337;
 	
 	//Load the references with pointers to the movieClips and text fields in the .swf
-	HealthBar = GetVariableObject("_root.HealthBar.Bar");
-	ManaBar = GetVariableObject("_root.ManaBar.Bar");
+	HealthBar = GetVariableObject("_root.InfBack.HealthBar");
+	LumusBar = GetVariableObject("_root.InfBack.LumusBar");
 	Cursor = GetVariableObject("_root.Cursor");
 	Pos_Indicator = GetVariableObject("_root.PosCircle");
-	Detection_Eye = GetVariableObject("_root.TheEye");
+	Detection_Eye = GetVariableObject("_root.PosCircle.TheEye");
 	Tut_Text = GetVariableObject("_root.TutText");
 	RootMC = GetVariableObject("_root");
-
-	/* Get AS Vars */
-	bCapture = RootMC.GetBool("bCaptureInput");
 }
 
 // This is called from Flash. Gets the x and y coordinates from the mouse location
@@ -226,32 +220,74 @@ function gotoFrame(int DangerLevel)
  */
 function TutDisplay()
 {
+
 	local string frame;
 	CurrentTutorialMessage = CurrentTutorialMessage + 1;
 	frame = string(CurrentTutorialMessage);
 	Tut_Text.gotoAndStop(frame);
+
+	if(CurrentTutorialMessage == 3 || CurrentTutorialMessage == 4)
+	{
+		Cursor.SetBool("bCaptureMouse", true);
+	}
+	else
+	{
+		RootMC.SetBool("bCaptureKeyboard", true);
+	}
+	
+	bCaptureInput = true;
 }
 
+/**
+ * Checks whether the proper key was pressed for each required tutorial message
+ * allows the player to proceed only if the proper key is pressed
+ */
 function KeyPressed(float Key)
 {
-	`log("bCap" $bCaptureInput);
+	`log("Key issss: " $Key $". FRAME IS : " $CurrentTutorialMessage); 
 	if(bCaptureInput == false)
 		return;
 	switch(CurrentTutorialMessage)
 	{
 		case 2:
-			if(Key == 32)
+			if(Key == 65 || key == 68)
 			{
-				RootMC.SetBool("bCapture", false);
+				RootMC.SetBool("bCaptureKeyboard", false);
 				bCaptureInput = false;
-				TutDisplay();
-				break;
+				Tut_Text.GotoAndStop("1");
 			}
+			break;
 		case 3:
+			if(Key == 999)
+			{
+				Cursor.SetBool("bCaptureMouse", false);
+				bCaptureInput = false;
+				Tut_Text.GotoAndStop("1");
+			}
+			break;
+		case 4:
+			if(Key == 888)
+			{
+				Cursor.SetBool("bCaptureMouse", false);
+				bCaptureInput = false;
+				Tut_Text.GotoAndStop("1");
+			}
 			break;
 		case 5:
+			if(Key == 69)
+			{
+				RootMC.SetBool("bCaptureKeyboard", false);
+				bCaptureInput = false;
+				Tut_Text.GotoAndStop("1");
+			}
 			break;
-		case 7:
+		case 8:
+			if(Key == 32)
+			{
+				RootMC.SetBool("bCaptureKeyboard", false);
+				bCaptureInput = false;
+				Tut_Text.GotoAndStop("1");
+			}
 			break;
 	}
 }
