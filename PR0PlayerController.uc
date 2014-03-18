@@ -12,20 +12,11 @@ var(Ability) int LightDimRate;
 var(Ability) int MaxLightRange;
 //The minimum range of souluminescence
 var(Ability) int MinLightRange;
+//The lumos points which the player has
+var(Ability) int LuminosityPoints;
 
 //Damage point to the player's health when he is under light
 var(Logic) int LightDamage;
-
-simulated event PostBeginPlay()
-{
-	super.PostBeginPlay();
-}
-
-//Updated the HealthBar Upon Death
-simulated event Destroyed()
-{
-	super.Destroyed();
-}
 
 function ModifyLightIntensity()
 {
@@ -33,17 +24,26 @@ function ModifyLightIntensity()
 
 	foreach Pawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
 	{
-		//Brighten the light when jumping
-		if(Flying == TRUE)
-		{
-			HeroLight.Radius = Min(HeroLight.Radius + LightGrowRate, MaxLightRange);
-		}
-		//Dim the light when descending
-		else
+
+		//Dim the light when descending or brigtness points is zero
+		if(Flying == FALSE || LuminosityPoints <= 0)
 		{
 			HeroLight.Radius = Max(HeroLight.Radius - LightDimRate, MinLightRange);
 		}
+		//Brighten the light when jumping
+		else
+		{
+			HeroLight.Radius = Min(HeroLight.Radius + LightGrowRate, MaxLightRange);
+			LuminosityPoints -= 1;
+		}
+
 	}
+
+}
+
+function IncreaseLuminosityPoints()
+{
+	LuminosityPoints = Min(Default.LuminosityPoints, LuminosityPoints + 1000);
 }
 
 function bool IsCursorOnEnemy()
@@ -142,7 +142,6 @@ exec function Actor GetPossessionTarget()
 
 	HitActor = Trace(HitLocation, HitNormal, CursorLocation, out_Location, true);
 
-	`log("HitActor is "$HitActor);
 	if(HitActor.IsA('PR0Pawn'))
 	{
 		//The possession hits a bot and will possess it
@@ -270,6 +269,21 @@ ignores SeePlayer, HearNoise, Bump;
 					}			
 				}
 			}
+
+			//Flying physics only available when the player is not possessing any bot
+			if(PlayerInput.aUp != 0)
+			{
+			   Flying = TRUE;
+			   Pawn.SetPhysics(PHYS_Flying);
+			}
+			else if(PlayerInput.aUp == 0 && Flying)
+			{
+				Flying = FALSE;
+				Pawn.SetPhysics(PHYS_Falling);
+			}
+
+			ModifyLightIntensity();
+			Pawn.Acceleration.Z = PlayerInput.aUp * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
 		}
 
 		//ENetRole
@@ -286,23 +300,6 @@ ignores SeePlayer, HearNoise, Bump;
 
 		Pawn.Acceleration.X = -1 * PlayerInput.aStrafe * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
 		Pawn.Acceleration.Y = 0;
-
-		//Flying physics only available when the player is not possessing any bot
-		if(possessed == FALSE)
-		{
-			if(PlayerInput.aUp != 0)
-			{
-			   Flying = TRUE;
-			   Pawn.SetPhysics(PHYS_Flying);
-			}
-			else if(PlayerInput.aUp == 0 && Flying)
-			{
-				Flying = FALSE;
-				Pawn.SetPhysics(PHYS_Falling);
-			}
-			ModifyLightIntensity();
-			Pawn.Acceleration.Z = PlayerInput.aUp * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
-		}
 
 		TempRot.Pitch = Pawn.Rotation.Pitch;
 		TempRot.Roll = 0;
@@ -348,6 +345,7 @@ DefaultProperties
 	bIsPlayer = true
 	Possessed = false
 	Flying = false
+	LuminosityPoints = 5000
 	PossessionRange=400
 	LightGrowRate=10
 	LightDimRate=5

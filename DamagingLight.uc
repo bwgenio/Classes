@@ -1,6 +1,6 @@
 class DamagingLight extends SpotLightToggleable
 
-HideCategories(Object, Debug, Advanced, Mobile, Physics, Attachment, Physics, Collision);
+HideCategories(Object, Debug, Advanced, Mobile, Physics, Attachment, Collision);
 
 simulated event PostBeginPlay()
 {
