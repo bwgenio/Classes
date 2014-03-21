@@ -37,4 +37,6 @@ DefaultProperties
 	BobOffset = 10.0
 	bRotatingPickup = true
 	YawRotationRate = 32000
+
+	bIsRespawning = false
 }
