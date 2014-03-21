@@ -7,8 +7,8 @@ var float MouseY;
 //Create a Health Cache variable
 var float LastHealthpc;
 
-//Current Frame of the Countdown
-var int CurrentFrame;
+//Create a Luminosity cache variable
+var float LastLumosPoints;
 
 //Current DangerLevel of the player
 var int CurrentDangerLevel;
@@ -17,8 +17,8 @@ var int CurrentDangerLevel;
 var int CurrentTutorialMessage;
 
 //Create variables to hold references to the Flash MovieClips and Text Fields that will be modified
-var GFxObject HealthBar, LumusBar;
-var GFxObject Pos_Indicator, Cursor;
+var GFxObject HealthBar, LumosBar;
+var GFxObject Pos_CountDown, Cursor;
 Var GFxObject Detection_Eye, Tut_Text;
 var GFxObject RootMC;
 
@@ -44,9 +44,9 @@ function Init(optional LocalPlayer localP)
 	
 	//Load the references with pointers to the movieClips and text fields in the .swf
 	HealthBar = GetVariableObject("_root.InfBack.HealthBar");
-	LumusBar = GetVariableObject("_root.InfBack.LumusBar");
+	LumosBar = GetVariableObject("_root.InfBack.LumosBar");
 	Cursor = GetVariableObject("_root.Cursor");
-	Pos_Indicator = GetVariableObject("_root.PosCircle");
+	Pos_CountDown = GetVariableObject("_root.PosCircle.CountDown");
 	Detection_Eye = GetVariableObject("_root.PosCircle.TheEye");
 	Tut_Text = GetVariableObject("_root.TutText");
 	RootMC = GetVariableObject("_root");
@@ -63,16 +63,18 @@ function TickHUD()
 {
 	
 	local UTPawn UTP;
-
+	local PR0PlayerController PC;
 	//We need to talk to the Pawn, so create a reference and check the Pawn exists
 	UTP = UTPawn(GetPC().Pawn);
+	PC = PR0PlayerController(GetPC());
+
 	if (UTP == None) 
 	{
 		return;
 	}
 
 	//checkes whether the cursor is aiming at an enemy, and changes to the approperiate cursor image
-	if(PR0PlayerController(getPC()).IsCursorOnEnemy() == True)
+	if(PC.IsCursorOnEnemy() == True)
 	{
 		if(Cursor.GetFloat("_currentFrame") < 20)
 		Cursor.GotoAndPlay("25");	
@@ -89,9 +91,16 @@ function TickHUD()
 	{
 		//...Update the bar's xscale (but don't let it go over 100 or lower than 0)...
 		LastHealthpc = UTP.Health;
-		HealthBar.SetFloat("_xscale", (LastHealthpc > 100) ? 100.0f : ((LastHealthpc <= 0) ? 0.0f :(100.0 * float(UTP.Health)) / float(UTP.HealthMax)));
+		HealthBar.SetFloat("_xscale", (LastHealthpc > 100) ? 100.0f : ((LastHealthpc <= 0) ? 0.0f : (100.0 * float(UTP.Health)) / float(UTP.HealthMax)));
 	}
 
+	// Updates the Lumos Bar according to how much Lumos points are available.
+	if(LastLumosPoints != PC.LuminosityPoints)
+	{
+		LastLumosPoints = PC.LuminosityPoints;
+		LumosBar.SetFloat("_xscale", (LastLumosPoints > (class'PR0PlayerController'.Default.LuminosityPoints)) ? 100.0f : ((LastLumosPoints <= 0) ? 0.0f : (100.0 * float(PC.LuminosityPoints) / float(class'PR0PlayerController'.Default.LuminosityPoints))));
+	}
+	
 	// Checks whether the tutorial HUD trigger has been set on
 	// Captures player Inputs and makes sure it is the proper one for the tutorial
 }
@@ -125,24 +134,22 @@ function CallAsFunction(float arg1)
 //Displays the countdown and changes a frame every second.
 function PosCountdown()
 {
-	local string CurrentFrameString;
-	if(CurrentFrame < 7 && PR0PlayerController(getPC()).possessed==True)
+	if(PR0PlayerController(getPC()).possessed==True)
 	{
-		CurrentFrameString = string(CurrentFrame);
-		Pos_Indicator.GotoAndStop(CurrentFrameString);
-		CurrentFrame = CurrentFrame + 1;
+		Pos_CountDown.GotoAndPlay("2");
 	}
 	else
 	{
-		Pos_Indicator.GotoAndStop("1");
+		Pos_CountDown.GotoAndStop("1");
 	}
 }
 
-//Hides the PossessioncountDown
+//Hides the PossessioncountDown. Gets called from Flash at the end of the function
 function EndPosCountdown()
 {
-	Pos_Indicator.GotoAndStop("1");
-	CurrentFrame = 2;
+	`log("called endpos");
+	Pos_CountDown.GotoAndStop("1");
+	PR0PlayerController(getPC()).ReturnToNormal();
 }
 
 
@@ -207,7 +214,7 @@ function gotoFrame(int DangerLevel)
 				Detection_Eye.GotoAndPlay("77");
 				break;
 			Case 5: //Only when alertness == 100
-				Detection_Eye.GotoAndStop("91");
+				Detection_Eye.GotoAndStop("`91");
 				break;
 		}
 	}
@@ -295,7 +302,6 @@ function KeyPressed(float Key)
 DefaultProperties
 {
 	//this is the HUD. If the HUD is off, then this should be off
-	CurrentFrame=2
 	CurrentDangerLevel=0
 	CurrentTutorialMessage = 1
 	bCaptureInput = false

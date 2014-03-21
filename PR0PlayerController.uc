@@ -34,7 +34,7 @@ function ModifyLightIntensity()
 		else
 		{
 			HeroLight.Radius = Min(HeroLight.Radius + LightGrowRate, MaxLightRange);
-			LuminosityPoints -= 1;
+			LuminosityPoints -= 10;
 		}
 
 	}
@@ -43,7 +43,7 @@ function ModifyLightIntensity()
 
 function IncreaseLuminosityPoints()
 {
-	LuminosityPoints = Min(Default.LuminosityPoints, LuminosityPoints + 1000);
+	LuminosityPoints = Min(Default.LuminosityPoints, LuminosityPoints + 750);
 }
 
 function bool IsCursorOnEnemy()
@@ -191,8 +191,7 @@ function OnPossess(SeqAct_Possess inAction)
 			}
 
             Possess( PawnToPossess, FALSE );
-			SetTimer(1, true, 'PosCountdown', PR0HUDGfx(myHUD).HudMovie);
-            SetTimer(6, false, 'ReturnToNormal');
+			PR0HUDGfx(myHUD).HudMovie.PosCountdown();  
         }    
 		else
 		{
@@ -208,9 +207,6 @@ function ReturnToNormal()
     local Pawn EnemyPawn;
 	//Reference to player's light
 	local PointLightComponent HeroLight;
-	
-	PR0HUDGfx(myHUD).HudMovie.EndPosCountdown();
-	SetTimer(0.f);
 
 	//Return when player already unpossessed
 	if(possessed == FALSE)
@@ -345,7 +341,7 @@ DefaultProperties
 	bIsPlayer = true
 	Possessed = false
 	Flying = false
-	LuminosityPoints = 5000
+	LuminosityPoints = 3000
 	PossessionRange=400
 	LightGrowRate=10
 	LightDimRate=5
