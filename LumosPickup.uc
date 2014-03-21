@@ -1,6 +1,6 @@
 class LumosPickup extends UTPickupFactory_HealthVial
 
-HideCategories(Object, Debug, Advanced, Mobile, Physics);
+HideCategories(Object, Debug, Advanced, Mobile, Physics) placeable;
 
 function PickedUpBy(Pawn P)
 {

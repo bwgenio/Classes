@@ -54,8 +54,8 @@ function bool IsCursorOnEnemy()
 	local Rotator out_Rotation;
 	//The location of the cursor. The end of the trace
 	local Vector CursorLocation;
-	//The actor which is hit by possession
-	local Actor HitActor;
+	//The enemy bot which is hit by possession
+	local PR0Pawn HitActor;
 	//Location where the trace hits an actor
 	local Vector HitLocation;
 	//The normal where the trace hits an actor
@@ -71,8 +71,12 @@ function bool IsCursorOnEnemy()
 	CursorLocation.Y = 0;
 	out_Location.Y = 0;
 
-	HitActor = Trace(HitLocation, HitNormal, CursorLocation, out_Location, true);
-
+	//HitActor = Trace(HitLocation, HitNormal, CursorLocation, out_Location, true);
+	foreach TraceActors(class'PR0Pawn', HitActor, HitLocation, HitNormal, CursorLocation, out_Location)
+	{
+		break;
+	}
+	
 	//Return false if cursor is not hitting anything
 	if(HitActor == none)
 	{
@@ -110,7 +114,7 @@ exec function Actor GetPossessionTarget()
 	//The line which character will attempt to cast Possession
 	local Vector PossessionLine;
 	//The actor which is hit by possession
-	local Actor HitActor;
+	local PR0Pawn HitActor;
 	//Location where the trace hits an actor
 	local Vector HitLocation;
 	//The normal where the trace hits an actor
@@ -140,7 +144,11 @@ exec function Actor GetPossessionTarget()
 	DrawDebugLine(out_location,CursorLocation,255,0,0,true);
 	DrawDebugSphere(CursorLocation, 50, 100, 255,0,0,true);
 
-	HitActor = Trace(HitLocation, HitNormal, CursorLocation, out_Location, true);
+	//HitActor = Trace(HitLocation, HitNormal, CursorLocation, out_Location, true);
+	foreach TraceActors(class'PR0Pawn', HitActor, HitLocation, HitNormal, CursorLocation, out_Location)
+	{
+		break;
+	}
 
 	if(HitActor.IsA('PR0Pawn'))
 	{
