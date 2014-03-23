@@ -1,7 +1,7 @@
 class PR0PlayerController extends UTPlayerController;
 
 var Pawn OldPawn;
-var bool possessed, Flying;
+var bool possessed, Flying, Illuminating;
 //The range of possession
 var(Ability) float PossessionRange;
 //The rate which light grow
@@ -14,6 +14,10 @@ var(Ability) int MaxLightRange;
 var(Ability) int MinLightRange;
 //The lumos points which the player has
 var(Ability) int LuminosityPoints;
+//the enemy to possess
+var editconst Pawn PawnToPossess;
+//Possession MiniGame Movie
+var GFxPosMiniGame PosMiniGameMovie;
 
 //Damage point to the player's health when he is under light
 var(Logic) int LightDamage;
@@ -26,7 +30,7 @@ function ModifyLightIntensity()
 	{
 
 		//Dim the light when descending or brigtness points is zero
-		if(Flying == FALSE || LuminosityPoints <= 0)
+		if(Illuminating == FALSE || LuminosityPoints <= 0)
 		{
 			HeroLight.Radius = Max(HeroLight.Radius - LightDimRate, MinLightRange);
 		}
@@ -162,13 +166,26 @@ exec function Actor GetPossessionTarget()
 	}
 }
 
-//Possesses a different pawn
-function OnPossess(SeqAct_Possess inAction)
+// lights up the player
+//gets called on button F
+exec function Illuminate()
 {
-	//Reference to bot pawn to possess
-	local Pawn PawnToPossess;
+	Illuminating = true;
+}
+
+// turns off player
+// gets called onRelease of button F
+exec function StopIlluminate()
+{
+	Illuminating = false;
+}
+
+function SuccessPossess()
+{
 	//Reference to player's light
 	local PointLightComponent HeroLight;
+	//refrence to movie
+	local GFxHUD Movie;
 
     if(possessed==TRUE)
     {
@@ -176,31 +193,55 @@ function OnPossess(SeqAct_Possess inAction)
     }
     else
     {
+		PosMiniGameMovie.Close();
+		Movie = PR0HUDGfx(myHUD).HudMovie;
+		SetPause(false);
+		//Target to possess is found, and we will possess it
+		possessed=TRUE;
+		Movie.PosCountdown();
+		//Stop Bot firing when he is firing
+		PawnToPossess.StopFire(0);
+		//Reset's the pawn alertness
+		//PR0Bot(PawnToPossess.Controller).UpdateAlertness(0);
+
+		//Hide PlayerPawn, Set Collision to NoCollision, and Turn off HeroLight
+		OldPawn = Pawn;
+		UnPossess();
+		OldPawn.SetHidden(TRUE);
+		OldPawn.SetCollisionType(COLLIDE_NoCollision);
+		foreach OldPawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
+		{
+			HeroLight.SetEnabled(FALSE);
+		}
+		Possess( PawnToPossess, FALSE );
+	}
+}
+
+
+
+//Possesses a different pawn
+// gets called onClick of right mouse click
+exec function PossessEnemy()
+{
+	//refrence to movie
+	local GFxPosMiniGame Movie;
+
+    if(possessed==TRUE)
+    {
+        ReturnToNormal();
+    }
+    else
+    {
+		Movie = new class'GFxPosMiniGame';
+		Movie.Start();
+		`log("CREATED NEW MOVIE " $Movie.MovieInfo);
+		PosMiniGameMovie = Movie;
 		PawnToPossess = PR0Pawn(GetPossessionTarget());
         if( PawnToPossess != None )
         {
-			//Target to possess is found, and we will possess it
-			possessed=TRUE;
-			PR0HUDGfx(myHUD).HudMovie.PosCountdown();
-
-			//Stop Bot firing when he is firing
-			PawnToPossess.StopFire(0);
-			//Reset's the pawn alertness
-			//PR0Bot(PawnToPossess.Controller).UpdateAlertness(0);
-
-			//Hide PlayerPawn, Set Collision to NoCollision, and Turn off HeroLight
-            OldPawn = Pawn;
-            UnPossess();
-            OldPawn.SetHidden(TRUE);
-            OldPawn.SetCollisionType(COLLIDE_NoCollision);
-			foreach OldPawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
-			{
-				HeroLight.SetEnabled(FALSE);
-			}
-
-            Possess( PawnToPossess, FALSE );
-			PR0HUDGfx(myHUD).HudMovie.PosCountdown();  
-        }    
+			Pause();
+			
+        }
 		else
 		{
 			`log("TARGET NOT FOUND");
@@ -221,7 +262,6 @@ function ReturnToNormal()
 	{
 		return;
 	}
-	
     possessed=FALSE;
     EnemyPawn = Pawn;
     UnPossess();
@@ -349,6 +389,7 @@ DefaultProperties
 	bIsPlayer = true
 	Possessed = false
 	Flying = false
+	Illuminating = false
 	LuminosityPoints = 3000
 	PossessionRange=400
 	LightGrowRate=10
@@ -356,5 +397,5 @@ DefaultProperties
 	MaxLightRange=500
 	MinLightRange=100
 	LightDamage=2
-	InputClass=class'PR0.MouseInterfacePlayerInput'
+	InputClass=class'PR0.PR0PlayerInput'
 }

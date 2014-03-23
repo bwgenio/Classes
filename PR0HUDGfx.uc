@@ -4,6 +4,8 @@ class PR0HUDGfx extends HUD
 //Reference the actual SWF container
 var GFxHUD HudMovie;
 
+//Refrence to the Pause Menu
+var GFxPauseMenu PauseMenuMovie;
 
 var FontRenderInfo TextRenderInfo;
 
@@ -35,7 +37,7 @@ simulated function PostBeginPlay()
 
 	//Create a GFxHUD for HudMovie
 	HudMovie = new class'GFxHUD';
-	//Set the timing mode to TM_Real - otherwide things get paused in menus
+	//Set the timing mode to TM_Real - otherwise things get paused in menus
 	HudMovie.SetTimingMode(TM_Real);
 	//Set the ViewScaleMode
 	//NoBorder: The SWF is always displayed at the original AR, but it is scaled depending on the resolution; clipping will occur at game resolutions smaller than the Flash document size.
@@ -77,6 +79,26 @@ event PostRender()
 	WorldCursorOrigin = GetMouseCoords();
 	HudMovie.TickHUD();
 	super.PostRender();
+}
+
+//toggles the pause menu
+//calls on Esc
+exec function TogglePauseMenu()
+{
+	local GFxPauseMenu Movie;
+    if (PauseMenuMovie != none && PauseMenuMovie.bMovieIsOpen)
+	{
+		PauseMenuMovie.Close();
+		PR0PlayerController(GetALocalPlayerController()).SetPause(false);
+	}
+	else
+    {
+		
+		PR0PlayerController(GetALocalPlayerController()).Pause();
+		Movie = new class'GFxPauseMenu';
+		Movie.Start();
+		PauseMenuMovie = Movie;
+    }
 }
 
 DefaultProperties

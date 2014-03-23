@@ -36,7 +36,9 @@ function Init(optional LocalPlayer localP)
 {
 	//Start and load the SWF Movie
 	Start();
+	//RootMC.GotoAndStop("Main");
 	Advance(0.f);
+
 	CaptureMouse(True);
 
 	//Set the cahce value so that it will get updated on the first Tick
@@ -50,6 +52,12 @@ function Init(optional LocalPlayer localP)
 	Detection_Eye = GetVariableObject("_root.PosCircle.TheEye");
 	Tut_Text = GetVariableObject("_root.TutText");
 	RootMC = GetVariableObject("_root");
+}
+
+// Goto a certain Labeled frame in Root
+function GotoLabel(String label)
+{
+	RootMC.GotoAndStop(label);
 }
 
 // This is called from Flash. Gets the x and y coordinates from the mouse location
@@ -147,11 +155,8 @@ function PosCountdown()
 //Hides the PossessioncountDown. Gets called from Flash at the end of the function
 function EndPosCountdown()
 {
-	`log("called endpos");
-	Pos_CountDown.GotoAndStop("1");
 	PR0PlayerController(getPC()).ReturnToNormal();
 }
-
 
 
 /**
@@ -297,6 +302,12 @@ function KeyPressed(float Key)
 			}
 			break;
 	}
+}
+
+// Retrieves the current Frame of the stage
+function int getCurrentFrame()
+{
+	return RootMC.GetFloat("_currentFrame");
 }
 
 DefaultProperties
