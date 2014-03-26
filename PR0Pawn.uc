@@ -69,6 +69,8 @@ simulated event playDying(class<DamageType> DamageType, vector HitLoc)
 				break;
 			}
 		}
+		ConsoleCommand("open ?restart");
+		PR0HUDGFx(pc.MyHud).TogglePauseMenu();
 }
 
 //Override to make player mesh visible by default

@@ -54,6 +54,12 @@ function Init(optional LocalPlayer localP)
 	RootMC = GetVariableObject("_root");
 }
 
+//Hides the mouse when other swf files are opened
+function ToggleMainCursor(bool state)
+{
+	Cursor.SetVisible(state);
+}
+
 // Goto a certain Labeled frame in Root
 function GotoLabel(String label)
 {
@@ -136,6 +142,7 @@ function CallAsFunction(float arg1)
 	//calls the function
 	GetVariableObject(FunctionPath).Invoke(InvokeFunction, args);
 }
+
 
 //Checks whether the player is currently possessing a Pawn
 //If True, displays the the Countdown and Pos_Indicator

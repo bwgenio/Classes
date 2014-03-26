@@ -232,15 +232,13 @@ exec function PossessEnemy()
     }
     else
     {
-		Movie = new class'GFxPosMiniGame';
-		Movie.Start();
-		`log("CREATED NEW MOVIE " $Movie.MovieInfo);
-		PosMiniGameMovie = Movie;
 		PawnToPossess = PR0Pawn(GetPossessionTarget());
         if( PawnToPossess != None )
         {
 			Pause();
-			
+			Movie = new class'GFxPosMiniGame';
+			Movie.Start();
+			PosMiniGameMovie = Movie;		
         }
 		else
 		{

@@ -81,6 +81,8 @@ event PostRender()
 	super.PostRender();
 }
 
+
+
 //toggles the pause menu
 //calls on Esc
 exec function TogglePauseMenu()
@@ -90,12 +92,14 @@ exec function TogglePauseMenu()
 	{
 		PauseMenuMovie.Close();
 		PR0PlayerController(GetALocalPlayerController()).SetPause(false);
+		HudMovie.ToggleMainCursor(true);
 	}
 	else
     {
-		
+		HudMovie.ToggleMainCursor(false);
 		PR0PlayerController(GetALocalPlayerController()).Pause();
 		Movie = new class'GFxPauseMenu';
+		Movie.bDisplayWithHudOff = true;
 		Movie.Start();
 		PauseMenuMovie = Movie;
     }

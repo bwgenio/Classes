@@ -7,6 +7,22 @@ function Init(optional LocalPlayer localP)
 	//CaptureMouse(True);
 }
 
+
+
+//Gets Called When game is exited from the pause menu
+//starts main menu map
+function ExitGame()
+{
+	ConsoleCommand("start Pr0-MainMenu");
+}
+
+//toggles the pause menu
+//called on pressing resume
+function TogglePauseMenu()
+{
+	PR0HUDGFx(PR0PlayerController(getPC()).MyHud).TogglePauseMenu();
+}
+
 defaultproperties
 {
     bDisplayWithHudOff=TRUE
