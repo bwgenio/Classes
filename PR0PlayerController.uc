@@ -217,7 +217,22 @@ function SuccessPossess()
 	}
 }
 
+function StartChessGame(SeqAction_StartChess myAction)
+{
+	local GFxKnightMiniGame Movie;
+	local float Level;
 
+	Level = myAction.Level;
+
+	Movie = new class'GFxKnightMiniGame';
+	Movie.begin(level);
+}
+
+function EndChessGame()
+{
+	//Trigger door opening
+	TriggerEventClass(class'SeqEvent_EndChess', self);
+}
 
 //Possesses a different pawn
 // gets called onClick of right mouse click
@@ -396,4 +411,5 @@ DefaultProperties
 	MinLightRange=100
 	LightDamage=2
 	InputClass=class'PR0.PR0PlayerInput'
+	SupportedEvents.Add(class'SeqEvent_TriggerAlarm')
 }
