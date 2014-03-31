@@ -18,6 +18,9 @@ var(Ability) int LuminosityPoints;
 var editconst Pawn PawnToPossess;
 //Possession MiniGame Movie
 var GFxPosMiniGame PosMiniGameMovie;
+//holds the xbox values for the cursor
+var float MouseY;
+var float MouseX;
 
 //Damage point to the player's health when he is under light
 var(Logic) int LightDamage;
@@ -194,8 +197,8 @@ function SuccessPossess()
     else
     {
 		PosMiniGameMovie.Close();
+		PR0HUDGfx(myHUD).ToggleHUD();
 		Movie = PR0HUDGfx(myHUD).HudMovie;
-		SetPause(false);
 		//Target to possess is found, and we will possess it
 		possessed=TRUE;
 		Movie.PosCountdown();
@@ -245,14 +248,19 @@ exec function PossessEnemy()
     {
         ReturnToNormal();
     }
+	else if(PosMiniGameMovie.bMovieIsOpen)
+	{
+		PosMiniGameMovie.isCaptured(false);
+		PR0HUDGfx(myHUD).ToggleHUD();
+	}
     else
     {
 		PawnToPossess = PR0Pawn(GetPossessionTarget());
         if( PawnToPossess != None )
         {
-			Pause();
+			PR0HUDGfx(myHUD).ToggleHUD();
 			Movie = new class'GFxPosMiniGame';
-			Movie.Start();
+			Movie.Init();
 			PosMiniGameMovie = Movie;		
         }
 		else
@@ -354,7 +362,7 @@ ignores SeePlayer, HearNoise, Bump;
 			//So remote clients know where this pawn is looking (Pawn's Rotation)
 			Pawn.SetRemoteViewPitch(Rotation.Pitch);
 		}
-
+		
 		Pawn.Acceleration.X = -1 * PlayerInput.aStrafe * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
 		Pawn.Acceleration.Y = 0;
 
@@ -396,6 +404,29 @@ ignores SeePlayer, HearNoise, Bump;
 	}
 }
 
+event PlayerTick (float DeltaTime)
+{
+	MouseY = PlayerInput.aLookUp * 25;
+	MouseX = PlayerInput.aTurn * 25;
+	if(PosMiniGameMovie.bMovieIsOpen)
+	{
+		PosMiniGameMovie.tick();
+	}
+	super.PlayerTick(DeltaTime);
+}
+
+//returns MouseY
+function float returnMouseY()
+{
+	return MouseY;
+}
+
+//returns MouseX
+function float returnMouseX()
+{
+	return MouseX;
+}
+
 DefaultProperties
 {
 	bForceBehindView = false
@@ -410,6 +441,8 @@ DefaultProperties
 	MaxLightRange=500
 	MinLightRange=100
 	LightDamage=2
+	MouseY=0
+	MouseX=0
 	InputClass=class'PR0.PR0PlayerInput'
 	SupportedEvents.Add(class'SeqEvent_TriggerAlarm')
 }
