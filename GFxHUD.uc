@@ -3,6 +3,9 @@ class GFxHUD extends GFxMoviePlayer;
 //Mouse Location Variables. Will be assigned from the actionscript
 var float MouseX;
 var float MouseY;
+var float CurrentMouseY;
+var float CurrentMouseX;
+var bool MouseVisible;
 
 //Create a Health Cache variable
 var float LastHealthpc;
@@ -21,7 +24,6 @@ var GFxObject HealthBar, LumosBar;
 var GFxObject Pos_CountDown, Cursor;
 Var GFxObject Detection_Eye, Tut_Text;
 var GFxObject RootMC;
-
 //presets the mouse location to 0,0
 function CaptureMouse(bool IsEnabled)
 {
@@ -40,7 +42,6 @@ function Init(optional LocalPlayer localP)
 	Advance(0.f);
 
 	CaptureMouse(True);
-
 	//Set the cahce value so that it will get updated on the first Tick
 	LastHealthpc = -1337;
 	
@@ -52,12 +53,6 @@ function Init(optional LocalPlayer localP)
 	Detection_Eye = GetVariableObject("_root.PosCircle.TheEye");
 	Tut_Text = GetVariableObject("_root.TutText");
 	RootMC = GetVariableObject("_root");
-}
-
-//Hides the mouse when other swf files are opened
-function ToggleMainCursor(bool state)
-{
-	Cursor.SetVisible(state);
 }
 
 // Goto a certain Labeled frame in Root
@@ -75,18 +70,31 @@ function ReceiveMouseCoords(float x, float y)
 //Called every update Tick
 function TickHUD() 
 {
-	
+
 	local UTPawn UTP;
 	local PR0PlayerController PC;
 	//We need to talk to the Pawn, so create a reference and check the Pawn exists
 	UTP = UTPawn(GetPC().Pawn);
 	PC = PR0PlayerController(GetPC());
-
 	if (UTP == None) 
 	{
 		return;
 	}
 
+	if(PR0PlayerController(GetPC()).PlayerInput.bUsingGamepad == true && MouseVisible)
+	{
+		CurrentMouseY = CurrentMouseY + PR0PlayerController(GetPC()).returnMouseY();
+		CurrentMouseX = CurrentMouseX + PR0PlayerController(GetPC()).returnMouseX();
+		Cursor.SetBool("bUsingXbox", true);
+		Cursor.SetFloat("_y", CurrentMouseY);
+		Cursor.SetFloat("_x", CurrentMouseX);
+		MouseX = CurrentMouseX;
+		MouseY = CurrentMouseY;
+	}
+	else
+	{
+		Cursor.SetBool("bUsingXbox", false);
+	}
 	//checkes whether the cursor is aiming at an enemy, and changes to the approperiate cursor image
 	if(PC.IsCursorOnEnemy() == True)
 	{
@@ -322,6 +330,7 @@ DefaultProperties
 	//this is the HUD. If the HUD is off, then this should be off
 	CurrentDangerLevel=0
 	CurrentTutorialMessage = 1
+	MouseVisible = true
 	bCaptureInput = false
 	bDisplayWithHudOff=false
 	MovieInfo = swfMovie'PRAsset.HUD.PR-HUD'
