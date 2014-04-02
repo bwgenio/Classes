@@ -23,7 +23,11 @@ simulated event TakeDamage(int DamageAmount, Controller EventInstigator, Vector 
 		//Alert enemy bot when they are hit 
 		PR0Bot(Controller).AlertBotWhenHit(UTWeapon(DamageCauser).Owner);
 	}
-
+	if(PR0PlayerController(controller).PosMiniGameMovie.bMovieIsOpen)
+	{
+		//closes the possession mini game swf if player gets damage.
+		PR0PlayerController(controller).PosMiniGameMovie.isCaptured(false);
+	}
 	//Overwrites the momentum so the player won't be flying back when shot
 	super.TakeDamage(DamageAmount, EventInstigator, HitLocation, Vect(0,0,0), DamageType, HitInfo, DamageCauser);
 }

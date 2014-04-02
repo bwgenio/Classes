@@ -78,6 +78,8 @@ event PostRender()
 {
 	WorldCursorOrigin = GetMouseCoords();
 	HudMovie.TickHUD();
+	if(PauseMenuMovie.bMovieIsOpen)
+		PauseMenuMovie.tick();
 	super.PostRender();
 }
 
@@ -92,15 +94,14 @@ exec function TogglePauseMenu()
 	{
 		PauseMenuMovie.Close();
 		PR0PlayerController(GetALocalPlayerController()).SetPause(false);
-		HudMovie.ToggleMainCursor(true);
+		ToggleHUD();
 	}
 	else
     {
-		HudMovie.ToggleMainCursor(false);
-		PR0PlayerController(GetALocalPlayerController()).Pause();
+		ToggleHUD();
 		Movie = new class'GFxPauseMenu';
-		Movie.bDisplayWithHudOff = true;
-		Movie.Start();
+		Movie.SetAlignment(Align_TopLeft);
+		Movie.Init();
 		PauseMenuMovie = Movie;
     }
 }
