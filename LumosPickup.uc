@@ -18,7 +18,7 @@ DefaultProperties
 {
 	Begin Object Name=HealthPickupMesh
 		StaticMesh=StaticMesh'PRAsset.Assets.Lumos_pickup'
-		Scale = 0.25
+		Scale = 0.20
 	End Object
 
 	Begin Object NAME=CollisionCylinder

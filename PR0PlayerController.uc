@@ -201,8 +201,11 @@ function SuccessPossess()
 		Movie.PosCountdown();
 		//Stop Bot firing when he is firing
 		PawnToPossess.StopFire(0);
+
 		//Reset's the pawn alertness
-		//PR0Bot(PawnToPossess.Controller).UpdateAlertness(0);
+		`log("UPDATING ALERTNESS");
+		PR0Bot(PawnToPossess.Controller).UpdateAlertness(0);
+		PR0Bot(PawnToPossess.Controller).GotoState('Idle');
 
 		//Hide PlayerPawn, Set Collision to NoCollision, and Turn off HeroLight
 		OldPawn = Pawn;
@@ -278,12 +281,13 @@ function ReturnToNormal()
     possessed=FALSE;
     EnemyPawn = Pawn;
     UnPossess();
-    EnemyPawn.SetCollisionType(COLLIDE_NoCollision);
+    //EnemyPawn.SetCollisionType(COLLIDE_NoCollision);
     Possess(OldPawn, FALSE);
     OldPawn.SetLocation(EnemyPawn.Location);
     
     if(EnemyPawn != None)
-    {
+    {  
+		`log("CALLING DESTROY");
         EnemyPawn.Destroy();
     }
 

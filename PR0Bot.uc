@@ -156,7 +156,8 @@ function UpdateAlertness(int NewAlertness)
 	`log("UPDATE ALERTNESS OF "$self$" TO "$NewAlertness);
 	//Determine the new frame and check if the eye HUD needs to be opened more
 	NewAlertnessFrame = FCeil(float(NewAlertness)/25.0f);
-	
+	`log("GOING TO FRAME "$NewAlertnessFrame$" CURRENT ALERTNESS "$CurrentAlertnessFrame);
+
 	//TODO: Update alertness should always show the highest alertness of all bots
 	if(NewAlertnessFrame != CurrentAlertnessFrame)
 	{
