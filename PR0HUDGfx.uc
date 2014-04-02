@@ -78,8 +78,10 @@ event PostRender()
 {
 	WorldCursorOrigin = GetMouseCoords();
 	HudMovie.TickHUD();
-	if(PauseMenuMovie.bMovieIsOpen)
+	if(PauseMenuMovie != none)
 		PauseMenuMovie.tick();
+	//if(KnightMiniGame.bMovieIsOpen)
+	//	KnightMenuMovie.tick();
 	super.PostRender();
 }
 
@@ -90,9 +92,10 @@ event PostRender()
 exec function TogglePauseMenu()
 {
 	local GFxPauseMenu Movie;
-    if (PauseMenuMovie != none && PauseMenuMovie.bMovieIsOpen)
+    if (PauseMenuMovie != none)
 	{
-		PauseMenuMovie.Close();
+		PauseMenuMovie.Close(true);
+		PauseMenuMovie = none;
 		PR0PlayerController(GetALocalPlayerController()).SetPause(false);
 		ToggleHUD();
 	}

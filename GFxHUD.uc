@@ -61,6 +61,12 @@ function GotoLabel(String label)
 	RootMC.GotoAndStop(label);
 }
 
+//gets called from AC when possession is ready
+function ToggleReadyToPossess(bool state)
+{
+	PR0PlayerController(getPC()).togglePosReady(state);
+}
+
 // This is called from Flash. Gets the x and y coordinates from the mouse location
 function ReceiveMouseCoords(float x, float y)
 {

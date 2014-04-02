@@ -1,7 +1,7 @@
 class PR0PlayerController extends UTPlayerController;
 
 var Pawn OldPawn;
-var bool possessed, Flying, Illuminating;
+var bool possessed, Flying, Illuminating, PosReady;
 //The range of possession
 var(Ability) float PossessionRange;
 //The rate which light grow
@@ -18,6 +18,8 @@ var(Ability) int LuminosityPoints;
 var editconst Pawn PawnToPossess;
 //Possession MiniGame Movie
 var GFxPosMiniGame PosMiniGameMovie;
+//Knight MiniGame
+var GFxKnightMiniGame KnightMiniGame;
 //holds the xbox values for the cursor
 var float MouseY;
 var float MouseX;
@@ -196,7 +198,8 @@ function SuccessPossess()
     }
     else
     {
-		PosMiniGameMovie.Close();
+		PosMiniGameMovie.Close(true);
+		PosMiniGameMovie = none;
 		PR0HUDGfx(myHUD).ToggleHUD();
 		Movie = PR0HUDGfx(myHUD).HudMovie;
 		//Target to possess is found, and we will possess it
@@ -221,6 +224,7 @@ function SuccessPossess()
 		}
 		Possess( PawnToPossess, FALSE );
 	}
+	PosReady = false;
 }
 
 function StartChessGame(SeqAction_StartChess myAction)
@@ -231,12 +235,16 @@ function StartChessGame(SeqAction_StartChess myAction)
 	Level = myAction.Level;
 
 	Movie = new class'GFxKnightMiniGame';
-	Movie.begin(level);
+	Movie.Begin(level);
+
+	KnightMiniGame = Movie;
 }
 
 function EndChessGame()
 {
 	//Trigger door opening
+	KnightMiniGame.Close(true);
+	KnightMiniGame = none;
 	TriggerEventClass(class'SeqEvent_EndChess', self);
 }
 
@@ -251,12 +259,12 @@ exec function PossessEnemy()
     {
         ReturnToNormal();
     }
-	else if(PosMiniGameMovie.bMovieIsOpen)
+	else if(PosMiniGameMovie != none)
 	{
 		PosMiniGameMovie.isCaptured(false);
 		PR0HUDGfx(myHUD).ToggleHUD();
 	}
-    else
+    else if(PosReady)
     {
 		PawnToPossess = PR0Pawn(GetPossessionTarget());
         if( PawnToPossess != None )
@@ -264,7 +272,7 @@ exec function PossessEnemy()
 			PR0HUDGfx(myHUD).ToggleHUD();
 			Movie = new class'GFxPosMiniGame';
 			Movie.Init();
-			PosMiniGameMovie = Movie;		
+			PosMiniGameMovie = Movie;
         }
 		else
 		{
@@ -412,9 +420,13 @@ event PlayerTick (float DeltaTime)
 {
 	MouseY = PlayerInput.aLookUp * 25;
 	MouseX = PlayerInput.aTurn * 25;
-	if(PosMiniGameMovie.bMovieIsOpen)
+	if(PosMiniGameMovie != none)
 	{
 		PosMiniGameMovie.tick();
+	}
+	if(KnightMiniGame != none)
+	{
+		KnightMiniGame.tick();
 	}
 	super.PlayerTick(DeltaTime);
 }
@@ -431,6 +443,12 @@ function float returnMouseX()
 	return MouseX;
 }
 
+//Changes Possession Ready bool
+function togglePosReady(bool state)
+{
+	PosReady = state;
+}
+
 DefaultProperties
 {
 	bForceBehindView = false
@@ -438,6 +456,7 @@ DefaultProperties
 	Possessed = false
 	Flying = false
 	Illuminating = false
+	PosReady = true
 	LuminosityPoints = 3000
 	PossessionRange=400
 	LightGrowRate=10
