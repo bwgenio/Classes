@@ -79,7 +79,9 @@ event PostRender()
 	WorldCursorOrigin = GetMouseCoords();
 	HudMovie.TickHUD();
 	if(PauseMenuMovie != none)
+	{
 		PauseMenuMovie.tick();
+	}
 	//if(KnightMiniGame.bMovieIsOpen)
 	//	KnightMenuMovie.tick();
 	super.PostRender();
@@ -94,6 +96,7 @@ exec function TogglePauseMenu()
 	local GFxPauseMenu Movie;
     if (PauseMenuMovie != none)
 	{
+		//PauseMenuMovie.Cursor.SetBool("bUsingXbox", false);
 		PauseMenuMovie.Close(true);
 		PauseMenuMovie = none;
 		PR0PlayerController(GetALocalPlayerController()).SetPause(false);
@@ -103,9 +106,10 @@ exec function TogglePauseMenu()
     {
 		ToggleHUD();
 		Movie = new class'GFxPauseMenu';
-		Movie.SetAlignment(Align_TopLeft);
-		Movie.Init();
+		//Movie.SetAlignment(Align_TopLeft);
 		PauseMenuMovie = Movie;
+		Movie.Begin(PR0PlayerController(GetALocalPlayerController()).PlayerInput.bUsingGamepad);
+		PR0PlayerController(GetALocalPlayerController()).SetPause(true);
     }
 }
 

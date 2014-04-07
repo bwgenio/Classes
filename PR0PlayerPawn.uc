@@ -86,22 +86,22 @@ DefaultProperties
 		Translation = (Z=-100)
     End Object*/
 
-	Begin Object NAME=CollisionCylinder 
-		CollideActors=true
-		CollisionRadius=+20
-		CollisionHeight=+50
-		bAlwaysRenderIfSelected=true
-		//bDrawWireCylinder=true;
-		Translation = (Z=20)
-	End Object
-	CollisionComponent=CollisionCylinder
-	CylinderComponent=CollisionCylinder
-	Components.Add(CollisionCylinder)
+	//Begin Object NAME=CollisionCylinder 
+	//	CollideActors=true
+	//	CollisionRadius=+20
+	//	CollisionHeight=+50
+	//	bAlwaysRenderIfSelected=true
+	//	//bDrawWireCylinder=true;
+	//	Translation = (Z=20)
+	//End Object
+	//CollisionComponent=CollisionCylinder
+	//CylinderComponent=CollisionCylinder
+	//Components.Add(CollisionCylinder)
 
-	Begin Object class=SkeletalMeshComponent Name=PlayerComponent
-		Scale = 0.5
-		Translation = (Z=-100)
-	End Object
+	//Begin Object class=SkeletalMeshComponent Name=PlayerComponent
+	//	Scale = 0.5
+	//	Translation = (Z=-100)
+	//End Object
 
 	defaultMesh=SkeletalMesh'PlayerCharacter.Mesh.Mage'
 	defaultAnimTree=AnimTree'PlayerCharacter.MageAnimTree'

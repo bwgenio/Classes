@@ -7,27 +7,23 @@ var float CurrentMouseX;
 //cursor object
 var GFxObject Cursor;
 
-function Init(optional LocalPlayer localP) 
+function Begin(bool UsingGamepad) 
 {
 	Start();
 	Advance(0.f);
+	AddCaptureKey('XboxTypeS_A');
 	Cursor = GetVariableObject("_root.Cursor");
+	Cursor.SetBool("bUsingXbox", UsingGamepad);
 }
 
 function tick()
 {
-	if(PR0PlayerController(GetPC()).PlayerInput.bUsingGamepad == true)
-	{
 		CurrentMouseY = CurrentMouseY + PR0PlayerController(GetPC()).returnMouseY();
 		CurrentMouseX = CurrentMouseX + PR0PlayerController(GetPC()).returnMouseX();
-		Cursor.SetBool("bUsingXbox", true);
+		//Cursor.SetBool("bUsingXbox", true);
 		Cursor.SetFloat("_y", CurrentMouseY);
 		Cursor.SetFloat("_x", CurrentMouseX);
-	}
-	else
-	{
-		Cursor.SetBool("bUsingXbox", false);
-	}
+		//Cursor.SetBool("bUsingXbox", false);
 }
 
 //Gets Called When game is exited from the pause menu
@@ -48,5 +44,6 @@ defaultproperties
 {
     TimingMode=TM_Real
 	bCaptureInput=false
+	//bCaptureMouseInput=true
 	MovieInfo = swfMovie'PRAsset.PauseMenu.PR0-PauseMenu'
 }

@@ -209,7 +209,7 @@ function gotoFrame(int DangerLevel)
 	{
 		return;
 	}
-	//else if(CurrentDangerLevel > DangerLevel)
+	//else if(CurrentDangerLevel > DangerLeBvel)
 	else if(HighestAlertnessFrame < CurrentDangerLevel)
 	{
 		`log("DECREASE FROM "$CurrentDangerLevel$" TO "$HighestAlertnessFrame);
