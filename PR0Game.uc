@@ -12,7 +12,7 @@ var PR0PlayerController currentPlayer;
 
 DefaultProperties
 {
-	DefaultPawnClass = class'PR0.PR0Pawn'
+	DefaultPawnClass = class'PR0.PR0PlayerPawn'
 	PlayerControllerClass = class'PR0.PR0PlayerController'
 	PlayerReplicationInfoClass=Class'PR0.PR0PlayerReplicationInfo'
 	HUDType=class'PR0.PR0HUDGfx'

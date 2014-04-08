@@ -14,6 +14,6 @@ function SetCharacter(class<UTFamilyInfo> CharacterClass)
  
 defaultproperties
 {
-    	LastKillTime=-3.0
+    LastKillTime=-3.0
 	CharClassInfo=class'PR0.PR0FamilyInfo_Human'
 }

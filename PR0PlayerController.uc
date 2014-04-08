@@ -1,7 +1,7 @@
 class PR0PlayerController extends UTPlayerController;
 
 var Pawn OldPawn;
-var bool possessed, Flying, Illuminating;
+var bool possessed, Flying, Illuminating, bPosIsReady;
 //The range of possession
 var(Ability) float PossessionRange;
 //The rate which light grow
@@ -205,6 +205,7 @@ function SuccessPossess()
     else
     {
 		PosMiniGameMovie.Close();
+		PosMiniGameMovie = none;
 		PR0HUDGfx(myHUD).ToggleHUD();
 		Movie = PR0HUDGfx(myHUD).HudMovie;
 		//Target to possess is found, and we will possess it
@@ -256,10 +257,9 @@ exec function PossessEnemy()
     {
         ReturnToNormal();
     }
-	else if(PosMiniGameMovie.bMovieIsOpen)
+	else if(PosMiniGameMovie != none)
 	{
 		PosMiniGameMovie.isCaptured(false);
-		PR0HUDGfx(myHUD).ToggleHUD();
 	}
     else
     {
@@ -276,6 +276,11 @@ exec function PossessEnemy()
 			`log("TARGET NOT FOUND");
 		}
     }
+}
+
+function togglePosReady(bool state)
+{
+	bPosIsReady = state;
 }
 
 //Unpossesses and returns the original character
@@ -416,7 +421,7 @@ event PlayerTick (float DeltaTime)
 {
 	MouseY = PlayerInput.aLookUp * 25;
 	MouseX = PlayerInput.aTurn * 25;
-	if(PosMiniGameMovie.bMovieIsOpen)
+	if(PosMiniGameMovie != none)
 	{
 		PosMiniGameMovie.tick();
 	}
@@ -446,16 +451,17 @@ public function ghostForm(){
 //	self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree);
 }
 
+
 DefaultProperties
 {
 	bIsPlayer = true
-	PlayerReplicationInfoClass = class'PR0.PR0PlayerReplicationInfo_Ghost'
-	CharClassInfo = class'PR0.PR0FamilyInfo_Ghost'
-
+	PosMiniGameMovie = none
+	//PlayerReplicationInfo =  class'PR0.PR0PlayerReplicationInfo'
 	bForceBehindView = false
 	Possessed = false
 	Flying = false
 	Illuminating = false
+	bPosIsReady = true
 	LuminosityPoints = 3000
 	PossessionRange=400
 	LightGrowRate=10

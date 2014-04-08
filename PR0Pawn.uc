@@ -1,7 +1,16 @@
 class PR0Pawn extends UTPawn;
 
+var GFxPosMiniGame PosMiniGamemovie;
+
 //Position of Y-AXIS to lock the camera to
 var(Camera) float CamOffsetDistance;
+
+simulated event PreBeginPlay()
+{
+	super.PreBeginPlay();
+
+}
+
 
 simulated function Tick(float DeltaTime)
 {
@@ -17,13 +26,17 @@ simulated function Tick(float DeltaTime)
 }
 
 simulated event TakeDamage(int DamageAmount, Controller EventInstigator, Vector HitLocation, Vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
-{
+{	
+	PosMiniGamemovie = PR0PlayerController(WorldInfo.GetALocalPlayerController()).PosMiniGameMovie;
+	if(PosMiniGamemovie != none)
+	{
+		PosMiniGamemovie.isCaptured(false);
+	}
 	if(Controller.IsA('PR0Bot'))
 	{
 		//Alert enemy bot when they are hit 
 		PR0Bot(Controller).AlertBotWhenHit(UTWeapon(DamageCauser).Owner);
 	}
-
 	//Overwrites the momentum so the player won't be flying back when shot
 	super.TakeDamage(DamageAmount, EventInstigator, HitLocation, Vect(0,0,0), DamageType, HitInfo, DamageCauser);
 }
@@ -65,6 +78,8 @@ simulated event BecomeViewTarget(PlayerController PC)
 		}
 	}
 }
+
+
 
 simulated function bool CalcCamera(float fDeltaTime, out Vector out_CamLoc, out Rotator out_CamRot, out float out_FOV)
 {
@@ -111,5 +126,6 @@ simulated singular event Rotator GetBaseAimRotation()
 }
 DefaultProperties
 {
+	PosMiniGamemovie = none;
 	CamOffsetDistance = -700.0
 }

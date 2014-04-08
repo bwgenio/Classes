@@ -59,17 +59,18 @@ simulated event playDying(class<DamageType> DamageType, vector HitLoc)
 
 simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
 {
-	local vector TranslationVector;
-	TranslationVector.Z = TranslationOffset;
+	//local vector TranslationVector;
+	//TranslationVector.Z = TranslationOffset;
 
-	super.SetCharacterClassFromInfo(Info);
-	Mesh.SetSkeletalMesh(defaultMesh);
-	//Mesh.SetMaterial(0,defaultMaterial0);
-	//Mesh.SetPhysicsAsset(defaultPhysicsAsset);
-	Mesh.AnimSets=defaultAnimSet;
-	Mesh.SetAnimTreeTemplate(defaultAnimTree);
-	Mesh.SetTranslation(TranslationVector);
-	//Mesh.SetScale(0.5);
+	//super.SetCharacterClassFromInfo(Info);
+	//Mesh.SetSkeletalMesh(defaultMesh);
+	////Mesh.SetMaterial(0,defaultMaterial0);
+	////Mesh.SetPhysicsAsset(defaultPhysicsAsset);
+	//Mesh.AnimSets=defaultAnimSet;
+	//Mesh.SetAnimTreeTemplate(defaultAnimTree);
+	//Mesh.SetTranslation(TranslationVector);
+	////Mesh.SetScale(0.5);
+	super.SetCharacterClassFromInfo(class'PR0.PR0FamilyInfo_Ghost');
 }
 
 DefaultProperties
@@ -103,9 +104,9 @@ DefaultProperties
 	//	Translation = (Z=-100)
 	//End Object
 
-	defaultMesh=SkeletalMesh'PlayerCharacter.Mesh.Mage'
-	defaultAnimTree=AnimTree'PlayerCharacter.MageAnimTree'
-	defaultAnimSet(0)=AnimSet'PlayerCharacter.Anims.MageAnims'
+	//defaultMesh=SkeletalMesh'PlayerCharacter.Mesh.Mage'
+	//defaultAnimTree=AnimTree'PlayerCharacter.MageAnimTree'
+	//defaultAnimSet(0)=AnimSet'PlayerCharacter.Anims.MageAnims'
 
 	TranslationOffset = -200
 

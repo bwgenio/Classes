@@ -28,6 +28,7 @@ function isCaptured(bool bCaptured)
 	{
 		bCaptureInput = false;
 		bCaptureMouseInput = false;
+		PR0PlayerController(GetPC()).myHUD.ToggleHUD();
 		Close(True);
 	}
 }

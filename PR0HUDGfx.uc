@@ -108,7 +108,7 @@ exec function TogglePauseMenu()
 		Movie = new class'GFxPauseMenu';
 		//Movie.SetAlignment(Align_TopLeft);
 		PauseMenuMovie = Movie;
-		Movie.Begin(PR0PlayerController(GetALocalPlayerController()).PlayerInput.bUsingGamepad);
+		Movie.Begin();
 		PR0PlayerController(GetALocalPlayerController()).SetPause(true);
     }
 }
