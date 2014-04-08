@@ -23,13 +23,25 @@ simulated event TakeDamage(int DamageAmount, Controller EventInstigator, Vector 
 		//Alert enemy bot when they are hit 
 		PR0Bot(Controller).AlertBotWhenHit(UTWeapon(DamageCauser).Owner);
 	}
-	if(PR0PlayerController(controller).PosMiniGameMovie.bMovieIsOpen)
-	{
-		//closes the possession mini game swf if player gets damage.
-		PR0PlayerController(controller).PosMiniGameMovie.isCaptured(false);
-	}
+
 	//Overwrites the momentum so the player won't be flying back when shot
 	super.TakeDamage(DamageAmount, EventInstigator, HitLocation, Vect(0,0,0), DamageType, HitInfo, DamageCauser);
+}
+
+simulated event playDying(class<DamageType> DamageType, vector HitLoc)
+{
+	local PR0PlayerController PC;
+	ForEach LocalPlayerControllers(class'PR0PlayerController', PC)
+		{
+			if( pc.ViewTarget == self )
+			{
+				if ( PR0HUDGfx(pc.MyHud)!=none )
+					PR0HUDGFx(pc.MyHud).HudMovie.TickHUD();
+				break;
+			}
+		}
+		ConsoleCommand("open ?restart");
+		PR0HUDGFx(pc.MyHud).TogglePauseMenu();
 }
 
 //Override to make player mesh visible by default
@@ -97,21 +109,7 @@ simulated singular event Rotator GetBaseAimRotation()
 	
 	return POVRot;
 }
-
 DefaultProperties
 {
 	CamOffsetDistance = -700.0
-	
-	Begin Object class=SkeletalMeshComponent Name=SandboxPawnSkeletalMesh
-		SkeletalMesh=SkeletalMesh'CH_IronGuard_Male.Mesh.SK_CH_IronGuard_MaleA'
-		AnimSets(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
-		AnimTreeTemplate=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
-		//LightEnvironment = HeroLightEnvironment
-		Translation = (Z=-10)
-		HiddenGame=FALSE
-		HiddenEditor=FALSE
-    End Object
-
-    Mesh=SandboxPawnSkeletalMesh
-    Components.Add(SandboxPawnSkeletalMesh)
 }

@@ -1,7 +1,7 @@
 class PR0PlayerController extends UTPlayerController;
 
 var Pawn OldPawn;
-var bool possessed, Flying, Illuminating, PosReady;
+var bool possessed, Flying, Illuminating;
 //The range of possession
 var(Ability) float PossessionRange;
 //The rate which light grow
@@ -18,14 +18,20 @@ var(Ability) int LuminosityPoints;
 var editconst Pawn PawnToPossess;
 //Possession MiniGame Movie
 var GFxPosMiniGame PosMiniGameMovie;
-//Knight MiniGame
-var GFxKnightMiniGame KnightMiniGame;
 //holds the xbox values for the cursor
 var float MouseY;
 var float MouseX;
-
+var PR0Pawn currentPawn;
 //Damage point to the player's health when he is under light
 var(Logic) int LightDamage;
+var PR0Pawn temp;
+var SkeletalMesh defaultMesh;
+var AnimTree defaultAnimTree;
+var array<AnimSet> defaultAnimSet;
+
+simulated function PostBeginPlay() {
+	super.PostBeginPlay();
+}
 
 function ModifyLightIntensity()
 {
@@ -198,8 +204,7 @@ function SuccessPossess()
     }
     else
     {
-		PosMiniGameMovie.Close(true);
-		PosMiniGameMovie = none;
+		PosMiniGameMovie.Close();
 		PR0HUDGfx(myHUD).ToggleHUD();
 		Movie = PR0HUDGfx(myHUD).HudMovie;
 		//Target to possess is found, and we will possess it
@@ -207,11 +212,8 @@ function SuccessPossess()
 		Movie.PosCountdown();
 		//Stop Bot firing when he is firing
 		PawnToPossess.StopFire(0);
-
 		//Reset's the pawn alertness
-		`log("UPDATING ALERTNESS");
-		PR0Bot(PawnToPossess.Controller).UpdateAlertness(0);
-		PR0Bot(PawnToPossess.Controller).GotoState('Idle');
+		//PR0Bot(PawnToPossess.Controller).UpdateAlertness(0);
 
 		//Hide PlayerPawn, Set Collision to NoCollision, and Turn off HeroLight
 		OldPawn = Pawn;
@@ -224,7 +226,6 @@ function SuccessPossess()
 		}
 		Possess( PawnToPossess, FALSE );
 	}
-	PosReady = false;
 }
 
 function StartChessGame(SeqAction_StartChess myAction)
@@ -235,16 +236,12 @@ function StartChessGame(SeqAction_StartChess myAction)
 	Level = myAction.Level;
 
 	Movie = new class'GFxKnightMiniGame';
-	Movie.Begin(level);
-
-	KnightMiniGame = Movie;
+	Movie.begin(level);
 }
 
 function EndChessGame()
 {
 	//Trigger door opening
-	KnightMiniGame.Close(true);
-	KnightMiniGame = none;
 	TriggerEventClass(class'SeqEvent_EndChess', self);
 }
 
@@ -259,12 +256,12 @@ exec function PossessEnemy()
     {
         ReturnToNormal();
     }
-	else if(PosMiniGameMovie != none)
+	else if(PosMiniGameMovie.bMovieIsOpen)
 	{
 		PosMiniGameMovie.isCaptured(false);
 		PR0HUDGfx(myHUD).ToggleHUD();
 	}
-    else if(PosReady)
+    else
     {
 		PawnToPossess = PR0Pawn(GetPossessionTarget());
         if( PawnToPossess != None )
@@ -272,7 +269,7 @@ exec function PossessEnemy()
 			PR0HUDGfx(myHUD).ToggleHUD();
 			Movie = new class'GFxPosMiniGame';
 			Movie.Init();
-			PosMiniGameMovie = Movie;
+			PosMiniGameMovie = Movie;		
         }
 		else
 		{
@@ -297,13 +294,12 @@ function ReturnToNormal()
     possessed=FALSE;
     EnemyPawn = Pawn;
     UnPossess();
-    //EnemyPawn.SetCollisionType(COLLIDE_NoCollision);
+    EnemyPawn.SetCollisionType(COLLIDE_NoCollision);
     Possess(OldPawn, FALSE);
     OldPawn.SetLocation(EnemyPawn.Location);
     
     if(EnemyPawn != None)
-    {  
-		`log("CALLING DESTROY");
+    {
         EnemyPawn.Destroy();
     }
 
@@ -420,13 +416,9 @@ event PlayerTick (float DeltaTime)
 {
 	MouseY = PlayerInput.aLookUp * 25;
 	MouseX = PlayerInput.aTurn * 25;
-	if(PosMiniGameMovie != none)
+	if(PosMiniGameMovie.bMovieIsOpen)
 	{
 		PosMiniGameMovie.tick();
-	}
-	if(KnightMiniGame != none)
-	{
-		KnightMiniGame.tick();
 	}
 	super.PlayerTick(DeltaTime);
 }
@@ -443,20 +435,27 @@ function float returnMouseX()
 	return MouseX;
 }
 
-//Changes Possession Ready bool
-function togglePosReady(bool state)
-{
-	PosReady = state;
+public function ghostForm(){
+//	local PR0Pawn temp;
+//	temp.SetCharacterClassFromInfo(class'PR0.PR0FamilyInfo_Ghost');
+//	Pawn=temp;
+//	Unpossess();
+//	Possess(temp, FALSE);
+//	self.Pawn.Mesh.SetSkeletalMesh(defaultMesh);
+//	self.Pawn.Mesh.AnimSets=defaultAnimSet;
+//	self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree);
 }
 
 DefaultProperties
 {
-	bForceBehindView = false
 	bIsPlayer = true
+	PlayerReplicationInfoClass = class'PR0.PR0PlayerReplicationInfo_Ghost'
+	CharClassInfo = class'PR0.PR0FamilyInfo_Ghost'
+
+	bForceBehindView = false
 	Possessed = false
 	Flying = false
 	Illuminating = false
-	PosReady = true
 	LuminosityPoints = 3000
 	PossessionRange=400
 	LightGrowRate=10
@@ -468,4 +467,7 @@ DefaultProperties
 	MouseX=0
 	InputClass=class'PR0.PR0PlayerInput'
 	SupportedEvents.Add(class'SeqEvent_TriggerAlarm')
+	defaultMesh=SkeletalMesh'CH_IronGuard_Male.Mesh.SK_CH_IronGuard_MaleA';
+	defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human';
+	defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale';
 }
