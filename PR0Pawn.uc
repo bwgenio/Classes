@@ -41,22 +41,6 @@ simulated event TakeDamage(int DamageAmount, Controller EventInstigator, Vector 
 	super.TakeDamage(DamageAmount, EventInstigator, HitLocation, Vect(0,0,0), DamageType, HitInfo, DamageCauser);
 }
 
-simulated event playDying(class<DamageType> DamageType, vector HitLoc)
-{
-	local PR0PlayerController PC;
-	ForEach LocalPlayerControllers(class'PR0PlayerController', PC)
-		{
-			if( pc.ViewTarget == self )
-			{
-				if ( PR0HUDGfx(pc.MyHud)!=none )
-					PR0HUDGFx(pc.MyHud).HudMovie.TickHUD();
-				break;
-			}
-		}
-		ConsoleCommand("open ?restart");
-		PR0HUDGFx(pc.MyHud).TogglePauseMenu();
-}
-
 //Override to make player mesh visible by default
 simulated event BecomeViewTarget(PlayerController PC)
 {

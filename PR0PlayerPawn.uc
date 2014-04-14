@@ -43,18 +43,22 @@ simulated event Landed(Vector HitNormal, Actor FloorActor)
 simulated event playDying(class<DamageType> DamageType, vector HitLoc)
 {
 	local PR0PlayerController PC;
-
+	local PR0HUDGfx HUDmovie;
+	local GFxRespawnMovie RespawnMovie;
 	ForEach LocalPlayerControllers(class'PR0PlayerController', PC)
 	{
 		if( pc.ViewTarget == self )
 		{
-			if ( PR0HUDGfx(pc.MyHud)!=none )
-				PR0HUDGFx(pc.MyHud).HudMovie.TickHUD();
+			HUDmovie = PR0HUDGFx(pc.MyHud);
+			RespawnMovie = new class'GFxRespawnMovie';
+			if ( HUDmovie!=none )
+				HUDmovie.HudMovie.TickHUD();
+				HUDmovie.ToggleHUD();
+				RespawnMovie.Begin();
 			break;
 		}
 	}
-	ConsoleCommand("open ?restart");
-	PR0HUDGFx(pc.MyHud).TogglePauseMenu();
+	pc.SetPause(true);
 }
 
 simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
