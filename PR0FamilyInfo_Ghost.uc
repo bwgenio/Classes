@@ -5,8 +5,8 @@ defaultproperties
 {
     	FamilyID="GHOST"
 
-	CharacterMesh=SkeletalMesh'PlayerCharacter.Mesh.Mage'
-	AnimSets(0)=AnimSet'PlayerCharacter.Anims.OldMageAnims'
+	CharacterMesh=SkeletalMesh'PRAsset.SkeletalMeshes.PrGhost'
+	//AnimSets(0)=AnimSet'PlayerCharacter.Anims.OldMageAnims'
 	//PhysAsset=PhysicsAsset'CH_AnimCorrupt.Mesh.SK_CH_Corrupt_Male_Physics'
 
 	SoundGroupClass=class'UTPawnSoundGroup_Liandri'
