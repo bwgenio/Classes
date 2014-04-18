@@ -18,6 +18,5 @@ defaultproperties
     TimingMode=TM_Real
 	bCaptureInput = true
 	bCaptureMouseInput = true
-	MovieInfo = SwfMovie'PRAsset.RespawnMovie.PR0-RespwanMovie'
-
+	MovieInfo = SwfMovie'PRAsset.RespawnMovie.PR0-RespawnMovie'
 }

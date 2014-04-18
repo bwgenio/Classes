@@ -506,6 +506,18 @@ Begin:
 	Goto('Begin');
 }
 
+state Idle 
+{
+	function BeginState(Name PreviousStateName)
+	{
+		`log("BOT IS NOW IN IDLE STATE FROM "$PreviousStateName);
+	}
+
+Begin:
+	Sleep(1);
+	Goto('Begin');
+}
+
 DefaultProperties
 {
 	//TODO: bIsPlayer is set to false to counteract SeePlayer function seeing other AI instead of the player

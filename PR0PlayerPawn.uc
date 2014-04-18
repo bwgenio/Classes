@@ -40,11 +40,29 @@ simulated event Landed(Vector HitNormal, Actor FloorActor)
 	SetPhysics(PHYS_Walking);
 }
 
-simulated event playDying(class<DamageType> DamageType, vector HitLoc)
+simulated event PlayDying(class<DamageType> DamageType, vector HitLoc)
+{
+	local ParticleSystem PS;
+
+	PS = ParticleSystem'PRAsset.Particles.P_VH_Death_Dust_Secondary';
+
+	// Play player death particle effect
+	WorldInfo.MyEmitterPool.SpawnEmitter(PS, Location);
+	
+	// Make the player mesh disappear
+	PR0PlayerController(Controller).IgnoreMoveInput(true);
+	SetInvisible(true);
+	Mesh.SetSkeletalMesh(none);
+
+	SetTimer(2, false, 'playDyingFlash');
+}
+
+function playDyingFlash()
 {
 	local PR0PlayerController PC;
 	local PR0HUDGfx HUDmovie;
 	local GFxRespawnMovie RespawnMovie;
+
 	ForEach LocalPlayerControllers(class'PR0PlayerController', PC)
 	{
 		if( pc.ViewTarget == self )
@@ -58,6 +76,7 @@ simulated event playDying(class<DamageType> DamageType, vector HitLoc)
 			break;
 		}
 	}
+
 	pc.SetPause(true);
 }
 
@@ -75,11 +94,13 @@ simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
 	//Mesh.SetTranslation(TranslationVector);
 	////Mesh.SetScale(0.5);
 	super.SetCharacterClassFromInfo(class'PR0.PR0FamilyInfo_Ghost');
+	Mesh.SetAnimTreeTemplate(AnimTree'PlayerCharacter.MageAnimTree');
 }
 
 DefaultProperties
 {
 	LightColor = (R=255,G=255,B=255,A=0)
+	SpawnSound = none
 
 	/*Begin Object Name=SandboxPawnSkeletalMesh
 		SkeletalMesh=SkeletalMesh'PlayerCharacter.Mesh.Mage'
@@ -103,17 +124,9 @@ DefaultProperties
 	//CylinderComponent=CollisionCylinder
 	//Components.Add(CollisionCylinder)
 
-	//Begin Object class=SkeletalMeshComponent Name=PlayerComponent
-	//	Scale = 0.5
-	//	Translation = (Z=-100)
-	//End Object
-
 	//defaultMesh=SkeletalMesh'PlayerCharacter.Mesh.Mage'
 	//defaultAnimTree=AnimTree'PlayerCharacter.MageAnimTree'
 	//defaultAnimSet(0)=AnimSet'PlayerCharacter.Anims.MageAnims'
 
 	TranslationOffset = -200
-
-    //Mesh=PlayerPawnSkeletalMesh
-    Components.Add(PlayerComponent)
 }

@@ -154,6 +154,7 @@ function CallAsFunction(float arg1)
 	FunctionPath = "_root";
 	InvokeFunction = "playInReverse";
 	//calls the function
+	`log("Invoking playInReverse "$arg1);
 	GetVariableObject(FunctionPath).Invoke(InvokeFunction, args);
 }
 

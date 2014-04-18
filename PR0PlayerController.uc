@@ -229,6 +229,11 @@ function SuccessPossess()
 	}
 }
 
+function FailPossess()
+{
+	PR0HUDGfx(myHUD).ToggleHUD();
+}
+
 function StartChessGame(SeqAction_StartChess myAction)
 {
 	local GFxKnightMiniGame Movie;
@@ -266,9 +271,11 @@ exec function PossessEnemy()
 		PawnToPossess = PR0Pawn(GetPossessionTarget());
         if( PawnToPossess != None )
         {
+			PawnToPossess.Controller.GotoState('Idle');
 			PR0HUDGfx(myHUD).ToggleHUD();
 			Movie = new class'GFxPosMiniGame';
-			Movie.Init();
+			`log("POSSESSION IS NOW PLAYING");
+			Movie.InitPos(PR0Bot(PawnToPossess.Controller));
 			PosMiniGameMovie = Movie;		
         }
 		else

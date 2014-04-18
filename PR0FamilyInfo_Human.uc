@@ -5,11 +5,11 @@ defaultproperties
 {
     	FamilyID="Human"
 
-	CharacterMesh=SkeletalMesh'CH_IronGuard_Male.Mesh.SK_CH_IronGuard_MaleA'
-	AnimSets(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
-	//PhysAsset=PhysicsAsset'CH_AnimCorrupt.Mesh.SK_CH_Corrupt_Male_Physics'
+	CharacterMesh=SkeletalMesh'PRAsset.EnemyGoblin.GoblinMesh'
+	AnimSets(0)=AnimSet'PRAsset.EnemyGoblin.EnemyGoblinAnims'
+	PhysAsset=PhysicsAsset'PRAsset.EnemyGoblin.GoblinMesh_Physics'
 	
-	AnimTreeTemplate=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
+	//AnimTreeTemplate=AnimTree'PRAsset.EnemyGoblin.EnemyAnimTree'
 	SoundGroupClass=class'UTPawnSoundGroup_Liandri'
 	VoiceClass=class'UTVoice_Robot'
 
