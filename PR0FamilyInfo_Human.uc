@@ -5,9 +5,9 @@ defaultproperties
 {
     	FamilyID="Human"
 
-	CharacterMesh=SkeletalMesh'PRAsset.EnemyGoblin.GoblinMesh'
+	//CharacterMesh=SkeletalMesh'PRAsset.EnemyGoblin.GoblinMesh'
 	AnimSets(0)=AnimSet'PRAsset.EnemyGoblin.EnemyGoblinAnims'
-	PhysAsset=PhysicsAsset'PRAsset.EnemyGoblin.GoblinMesh_Physics'
+	//PhysAsset=PhysicsAsset'PRAsset.EnemyGoblin.GoblinMesh_Physics'
 	
 	//AnimTreeTemplate=AnimTree'PRAsset.EnemyGoblin.EnemyAnimTree'
 	SoundGroupClass=class'UTPawnSoundGroup_Liandri'

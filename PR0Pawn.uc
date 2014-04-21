@@ -5,12 +5,8 @@ var GFxPosMiniGame PosMiniGamemovie;
 //Position of Y-AXIS to lock the camera to
 var(Camera) float CamOffsetDistance;
 
-simulated event PreBeginPlay()
-{
-	super.PreBeginPlay();
-
-}
-
+// check whether the user is attacking
+var bool isPlayingAttackAnimation;
 
 simulated function Tick(float DeltaTime)
 {
@@ -63,8 +59,6 @@ simulated event BecomeViewTarget(PlayerController PC)
 	}
 }
 
-
-
 simulated function bool CalcCamera(float fDeltaTime, out Vector out_CamLoc, out Rotator out_CamRot, out float out_FOV)
 {
 	//Set the camera's X and Z position as the Pawn's location
@@ -106,10 +100,29 @@ simulated singular event Rotator GetBaseAimRotation()
 		POVRot.Pitch = RemoteViewPitch << 8;
 	}
 	
+
 	return POVRot;
 }
+
+simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
+{
+	super.SetCharacterClassFromInfo(Info);
+	//`log("INFO IS "$Info);
+	//if (Info == class'PR0.PR0FamilyInfo_Ghost')
+	//{
+
+	//}
+	//else
+	//{
+	//	Mesh.setAnimTreeTemplate(AnimTree'PRAsset.EnemyGoblin.EnemyAnimTree');
+	//}
+	
+}
+
 DefaultProperties
 {
 	PosMiniGamemovie = none;
 	CamOffsetDistance = -700.0
+	isPlayingAttackAnimation = false
+	//GroundSpeed = 120;
 }

@@ -371,6 +371,15 @@ ignores SeePlayer, HearNoise, Bump;
 			Pawn.Acceleration.Z = PlayerInput.aUp * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
 		}
 
+		//// Ignore moves when player is shooting
+		//if (PR0Pawn(Pawn).isPlayingAttackAnimation == true)
+		//{
+		//	Pawn.Acceleration.X = 0;
+		//	Pawn.Acceleration.Y = 0;
+		//	Pawn.Acceleration.Z = 0;
+		//	return;
+		//}
+
 		//ENetRole
 		//ROLE_None No role at all.
 		//ROLE_SimulatedProxy Locally simulated proxy of this actor.

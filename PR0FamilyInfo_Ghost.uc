@@ -12,9 +12,8 @@ defaultproperties
 	SoundGroupClass=class'UTPawnSoundGroup_Liandri'
 	VoiceClass=class'UTVoice_Robot'
 
-	DefaultMeshScale=1.0
+	DefaultMeshScale=20.0
 	BaseTranslationOffset=-50.0
-	LightColor = (R=255,G=255,B=255,A=0)
 
 	//HeroLight = new(PR0PlayerPawn)class'PointLightComponent';
 	//HeroLight.SetLightProperties(5,LightColor);

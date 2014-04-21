@@ -402,10 +402,13 @@ Begin:
 		}
 		else
 		{
-			//Subtract ChaseTimer so bot will stop chasing the player
-			WorldInfo.Game.Broadcast(self, "MOVING TOWARD THE PLAYER DIRECTLY CHASETIMER IS "$ChaseTimer);
-			//MoveToward the player directly
-			MoveToward(Target, Target, 50);
+			if (PR0Pawn(Pawn).isPlayingAttackAnimation == false)
+			{
+				//Subtract ChaseTimer so bot will stop chasing the player
+				WorldInfo.Game.Broadcast(self, "MOVING TOWARD THE PLAYER DIRECTLY CHASETIMER IS "$ChaseTimer);
+				//MoveToward the player directly
+				MoveToward(Target, Target, 50);
+			}
 		}
 	}
 	else //Target is not reachable directly, pathfinding is required
@@ -419,10 +422,15 @@ Begin:
 				WorldInfo.Game.Broadcast(self, "TARGET UNREACHABLE");
 				AbortChase();
 			}
-			//Reduce ChaseTimer so bot would stop chasing the player after a 
-			WorldInfo.Game.Broadcast(self, "MOVING TO TEMPORARY DESTINATION BECAUSE PLAYER IS NOT DIRECTLY REACHABLE "$TempDest);
-			//Move to the temporary destination
-			MoveToward(TempDest, TempDest, 50);
+			
+			if (PR0Pawn(Pawn).isPlayingAttackAnimation == false)
+			{
+				//Reduce ChaseTimer so bot would stop chasing the player after a 
+				WorldInfo.Game.Broadcast(self, "MOVING TO TEMPORARY DESTINATION BECAUSE PLAYER IS NOT DIRECTLY REACHABLE "$TempDest);
+				//Move to the temporary destination
+				MoveToward(TempDest, TempDest, 50);
+			}
+
 		}
 		else
 		{
