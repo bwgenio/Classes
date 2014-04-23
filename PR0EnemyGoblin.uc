@@ -1,5 +1,6 @@
 class PR0EnemyGoblin extends PR0Pawn;
 
+var AnimNodePlayCustomAnim AttackAnim;
 var array<AnimSet> defaultAnimSet;
 
 simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
@@ -11,8 +12,24 @@ simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
 	Mesh.SetPhysicsAsset(PhysicsAsset'PRAsset.EnemyGoblin.GoblinMesh_Physics');
 }
 
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
+{
+    super.PostInitAnimTree(SkelComp);
+
+    if (SkelComp == Mesh)
+    {
+        AttackAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('CustomAnim'));
+		DeathAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('CustomDeathAnim'));
+    }
+}
+
 DefaultProperties
 {
 	defaultAnimSet(0) = AnimSet'PRAsset.EnemyGoblin.EnemyGoblinAnims'
-	GroundSpeed = 500;
+	DeathSoundCue = SoundCue'PRAsset.EnemySFX.Goblin_death1_Cue'
+	SuspicionDistance = 700
+	HostileDistance = 350
+	MaxFireDistance = 150
+	ChaseTimer = 3
+	AlertnessIncrement = 5
 }

@@ -1,5 +1,6 @@
 class PR0PlayerPawn extends PR0Pawn;
 
+var GFxPosMiniGame PosMiniGamemovie;
 //Light that emits from the player
 var(Light) PointLightComponent HeroLight;
 //Light Radius
@@ -40,7 +41,17 @@ simulated event Landed(Vector HitNormal, Actor FloorActor)
 	SetPhysics(PHYS_Walking);
 }
 
-simulated event PlayDying(class<DamageType> DamageType, vector HitLoc)
+simulated event TakeDamage(int DamageAmount, Controller EventInstigator, Vector HitLocation, Vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
+{
+	PosMiniGamemovie = PR0PlayerController(WorldInfo.GetALocalPlayerController()).PosMiniGameMovie;
+	if(PosMiniGamemovie != none)
+	{
+		PosMiniGamemovie.isCaptured(false);
+	}
+	super.TakeDamage(DamageAmount, EventInstigator, HitLocation, Vect(0,0,0), DamageType, HitInfo, DamageCauser);
+}
+
+simulated event PlayDying(class<DamageType> DamageType, vector HitLocation)
 {
 	local ParticleSystem PS;
 
@@ -101,6 +112,7 @@ DefaultProperties
 {
 	LightColor = (R=255,G=255,B=255,A=0)
 	SpawnSound = none
+	PosMiniGamemovie = none
 
 	/*Begin Object Name=SandboxPawnSkeletalMesh
 		SkeletalMesh=SkeletalMesh'PlayerCharacter.Mesh.Mage'

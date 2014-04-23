@@ -13,6 +13,8 @@ var(Behavior) float SuspicionDistance;
 var(Behavior) float HostileDistance;
 //The Alertness of bot. Range is 0-100
 var(Behavior) int Alertness;
+//How fast the alertness will increase
+var(Behavior) int AlertnessIncrement;
 //The closest Alarm to a bot.
 var(Behavior) Actor ClosestAlarm;
 
@@ -42,6 +44,14 @@ event Possess(Pawn inPawn, bool bVehicleTransition)
 {
 	super.Possess(inPawn, bVehicleTransition);
 	Pawn.SetMovementPhysics();
+	`log("------------------------------PAWN IS "$inPawn$" CONTROLLER IS "$self);
+
+	// Initialize all gameplay variables depending on which type of the bot
+	SuspicionDistance = PR0Pawn(inPawn).SuspicionDistance;
+	HostileDistance = PR0Pawn(inPawn).HostileDistance;
+	MaxFireDistance = PR0Pawn(inPawn).MaxFireDistance;
+	ChaseTimer = PR0Pawn(inPawn).ChaseTimer;
+	AlertnessIncrement = PR0Pawn(inPawn).AlertnessIncrement;
 }
 
 function PR0ConfigureBot(SeqAct_PR0ConfigureBot Action)
@@ -68,6 +78,7 @@ function AlertBotWhenHit(Actor DamageCauser)
 	else
 	{
 		TempDest = DamageCauser;
+		UpdateAlertness(25);
 		GotoState('Suspicion');
 	}
 }
@@ -108,33 +119,33 @@ event SeePlayer(Pawn Seen)
 			return;
 		}
 		//Player is seen by the bot, or alertness reached 100
-		else if(Distance <= HostileDistance || Alertness == 100)
+		else if(Distance <= HostileDistance || Alertness >= 100)
 		{
 			GoToState('Hostile', 'Begin');
 			return;
 			//Hostile state will try to trigger the alarm and kill the player
 		}
-		else if(Alertness == 25)
+		else if(Alertness >= 25)
 		{
+			// go to suspicion state, because the alertness is more than 25
+			// bot will slowly go towards the player
 			TempDest = Target;
 			GotoState('Suspicion');
 			return;
 		}
 		else if(Distance <= SuspicionDistance)
 		{
-			//Increase the alertness
-			UpdateAlertness(Alertness+5);
+			//Increase the alertness, because the player is within the bot's suspicion distance
+			UpdateAlertness(Alertness+AlertnessIncrement);
 			return;
 		}
 		else
 		{
 			//Player is too far to be seen by the bot.
 			//Reset the alertness back to zero
-			//TODO: BUGGY WITH 2 BOTS
 			if(Alertness != 0)
 			{
-				`log(WorldInfo.GetALocalPlayerController().Pawn);
-				`log("CALLED BY "$self$" DISTANCE IS "$Distance$" SEEN IS "$Seen);
+				//WorldInfo.Game.Broadcast(self,"TOO FAR TO BE SEEN BY BOT");
 				UpdateAlertness(0);
 			}
 			Target = none;
@@ -332,11 +343,13 @@ state Attack
 				//Pawn.SetDesiredRotation(Rotator(Normal(PlayerPawn.Location)));
 				SetFocalPoint(PlayerPawn.Location);
 				Focus = PlayerPawn;
+				//WorldInfo.Game.Broadcast(self,"ATTACK "$EnemyDistance);
 				Pawn.StartFire(0);
 			}
 			else
 			{
 				//StopFiring();
+				//WorldInfo.Game.Broadcast(self,"STOP ATTACK 1 "$EnemyDistance);
 				Pawn.StopFire(0);
 				Focus = none;
 				GotoState('ChasePlayer');
@@ -345,6 +358,7 @@ state Attack
 		else
 		{
 			//Try to approach player before attacking
+			//WorldInfo.Game.Broadcast(self,"STOP ATTACK 2 "$EnemyDistance);
 			Pawn.StopFire(0);
 			Focus = none;
 			GotoState('ChasePlayer');
@@ -395,7 +409,7 @@ Begin:
 		if(VSize(Target.Location - Pawn.Location) < MaxFireDistance)
 		{
 			//The Target is insdie bot's fire range.
-			Worldinfo.Game.Broadcast(self, "START FIRING AT TARGET AFTER CHASING");
+			//Worldinfo.Game.Broadcast(self, "START FIRING AT TARGET AFTER CHASING");
 			SetTimer(0);
 			//Start Firing the Player again
 			GotoState('Attack');
@@ -405,7 +419,7 @@ Begin:
 			if (PR0Pawn(Pawn).isPlayingAttackAnimation == false)
 			{
 				//Subtract ChaseTimer so bot will stop chasing the player
-				WorldInfo.Game.Broadcast(self, "MOVING TOWARD THE PLAYER DIRECTLY CHASETIMER IS "$ChaseTimer);
+				//WorldInfo.Game.Broadcast(self, "MOVING TOWARD THE PLAYER DIRECTLY CHASETIMER IS "$ChaseTimer);
 				//MoveToward the player directly
 				MoveToward(Target, Target, 50);
 			}
@@ -455,7 +469,6 @@ state Suspicion
 	function BeginState(Name PreviousStateName)
 	{
 		`log("BOT IS NOW IN SUSPICION STATE FROM "$PreviousStateName$" TEMPDEST IS "$TempDest);
-		UpdateAlertness(20);
 	}
 
 	function bool Suspicious()
@@ -468,20 +481,21 @@ state Suspicion
 		{
 			WorldInfo.Game.Broadcast(self, "TRUE DISTANCE "$Distance$" Alertness "$Alertness);
 			//Increase the alertness if player is still inside the bot's field of vision
-			UpdateAlertness(Alertness+5);
+			UpdateAlertness(Alertness+AlertnessIncrement);
 			return true;
 		}
 		else if(Distance <= HostileDistance)
 		{
 			//Player inside the bot's hostile distance, engage attack mode
-			WorldInfo.Game.Broadcast(self, "FALSE DISTANCE "$Distance$" Alertness "$Alertness);
+			//WorldInfo.Game.Broadcast(self, "FALSE DISTANCE "$Distance$" Alertness "$Alertness$" TEMPDEST "$TempDest);
+			//WorldInfo.Game.Broadcast(self, WorldInfo.GetALocalPlayerController().Pawn.Location$"------"$TempDest.Location);
 			GotoState('Hostile');
 			return false;
 		}
 		else
 		{
 			//Else player is away and alertness will decrease
-			WorldInfo.Game.Broadcast(self, "TOO FAR "$Distance);
+			WorldInfo.Game.Broadcast(self, "TOO FAR "$Distance$" "$TempDest.Location$" "$Pawn.Location);
 			UpdateAlertness(Alertness - 5);
 			return false;
 		}
@@ -531,17 +545,12 @@ DefaultProperties
 	//TODO: bIsPlayer is set to false to counteract SeePlayer function seeing other AI instead of the player
 	//      should there be a problem it should be changed back to true, and update SeePlayer function to accept Player controlled pawn only
 	bIsPlayer = false
-	SuspicionDistance = 800
+	/*SuspicionDistance = 800
 	HostileDistance = 400
 	MaxFireDistance = 600
-	ChaseTimer = 5
+	ChaseTimer = 5*/
 	CurrentAlertnessFrame = 0
 
 	StartNode = none
 	EndNode = none
-
-	//To see in kismet (Selected Actor, add event using actor)
-	//SupportedEvents.Add(class'SeqEvent_TriggerAlarm')
-	//SupportedEvents.Add(class'SeqEvent_BotStartShooting')
-	//SupportedEvents.Add(class'SeqEvent_StateChange')
 }

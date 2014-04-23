@@ -1,5 +1,15 @@
 class PR0ArrowShot extends UDKProjectile;
 
+simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNormal)
+{
+	if(Other != Instigator)
+	{
+		//Spawn damage particle
+		Other.TakeDamage(Damage, InstigatorController, HitLocation, MomentumTransfer * Normal(Velocity), class'UTDmgType_Fire',,self);
+		Destroy();
+	}
+}
+
 DefaultProperties
 {
 	Begin Object Name=CollisionCylinder
@@ -19,7 +29,7 @@ DefaultProperties
  
     Components.Add(BaseMesh)
 
-	Speed = 1000
+	Speed = 2000
 	MomentumTransfer = 0
-	Damage = 0
+	Damage = 40
 }

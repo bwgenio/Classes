@@ -1,12 +1,28 @@
 class PR0Pawn extends UTPawn;
 
-var GFxPosMiniGame PosMiniGamemovie;
-
 //Position of Y-AXIS to lock the camera to
 var(Camera) float CamOffsetDistance;
 
 // check whether the user is attacking
 var bool isPlayingAttackAnimation;
+
+/** Collection of gameplay elements 
+ **/
+// The distance which bot will become suspicious
+var(Gameplay) float SuspicionDistance;
+//The distance which bot will become hostile
+var(Gameplay) float HostileDistance;
+//The Alertness increment of bot. How much alertness should be increased
+var(Gameplay) int AlertnessIncrement;
+//Bot's maximum fire distance
+var(Combat) float MaxFireDistance;
+//Bot's chase Timer (seconds)
+var(Combat) float ChaseTimer;
+
+var AnimNodePlayCustomAnim DeathAnim;
+var class<DamageType> DmgType;
+var Vector HitLoc;
+var SoundCue DeathSoundCue;
 
 simulated function Tick(float DeltaTime)
 {
@@ -23,11 +39,6 @@ simulated function Tick(float DeltaTime)
 
 simulated event TakeDamage(int DamageAmount, Controller EventInstigator, Vector HitLocation, Vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 {	
-	PosMiniGamemovie = PR0PlayerController(WorldInfo.GetALocalPlayerController()).PosMiniGameMovie;
-	if(PosMiniGamemovie != none)
-	{
-		PosMiniGamemovie.isCaptured(false);
-	}
 	if(Controller.IsA('PR0Bot'))
 	{
 		//Alert enemy bot when they are hit 
@@ -104,24 +115,32 @@ simulated singular event Rotator GetBaseAimRotation()
 	return POVRot;
 }
 
-simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
+simulated event PlayDying(class<DamageType> DamageType, Vector HitLocation)
 {
-	super.SetCharacterClassFromInfo(Info);
-	//`log("INFO IS "$Info);
-	//if (Info == class'PR0.PR0FamilyInfo_Ghost')
-	//{
+	local ParticleSystem PS;
 
-	//}
-	//else
-	//{
-	//	Mesh.setAnimTreeTemplate(AnimTree'PRAsset.EnemyGoblin.EnemyAnimTree');
-	//}
-	
+	PS = ParticleSystem'T_FX.Effects.P_FX_Bloodhit_Corrupt_Far';
+
+	//Play the particle system for pawn's death
+	WorldInfo.MyEmitterPool.SpawnEmitter(PS, Location);
+
+	//Play deathsound for pawn's death
+	PlaySound(DeathSoundCue);
+
+	DeathAnim.PlayCustomAnim('Death', 1.0);
+	DmgType = DamageType;
+	HitLoc = HitLocation;
+
+	SetTimer(2.0, false, 'destroyPawn');
+}
+
+function destroyPawn()
+{
+	super.PlayDying(DmgType, HitLoc);
 }
 
 DefaultProperties
 {
-	PosMiniGamemovie = none;
 	CamOffsetDistance = -700.0
 	isPlayingAttackAnimation = false
 	//GroundSpeed = 120;

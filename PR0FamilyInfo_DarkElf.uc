@@ -10,8 +10,8 @@ defaultproperties
 	PhysAsset=PhysicsAsset'PRAsset.EnemyDarkElf.DarkElf_Physics'
 	
 	//AnimTreeTemplate=AnimTree'PRAsset.EnemyGoblin.EnemyAnimTree'
-	SoundGroupClass=class'UTPawnSoundGroup_Liandri'
-	VoiceClass=class'UTVoice_Robot'
+	SoundGroupClass=class'PR0PawnSoundGroup_DarkElf'
+	//VoiceClass=class'UTVoice_Robot'
 
 	FamilyEmotes[19] = (CategoryName="AttackA", EmoteTag="AttackA", EmoteAnim="ATTACK", bTopHalfEmote=true)
 	DefaultMeshScale=1.0

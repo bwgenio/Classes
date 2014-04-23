@@ -226,6 +226,9 @@ function SuccessPossess()
 			HeroLight.SetEnabled(FALSE);
 		}
 		Possess( PawnToPossess, FALSE );
+
+		// Play possessing sound
+		PlaySound(SoundCue'PRAsset.SFX.Possession_Cue');
 	}
 }
 
@@ -278,10 +281,6 @@ exec function PossessEnemy()
 			Movie.InitPos(PR0Bot(PawnToPossess.Controller));
 			PosMiniGameMovie = Movie;		
         }
-		else
-		{
-			`log("TARGET NOT FOUND");
-		}
     }
 }
 
@@ -295,8 +294,6 @@ function ReturnToNormal()
 {
 	//Reference to the bot
     local Pawn EnemyPawn;
-	//Reference to player's light
-	local PointLightComponent HeroLight;
 
 	//Return when player already unpossessed
 	if(possessed == FALSE)
@@ -312,8 +309,21 @@ function ReturnToNormal()
     
     if(EnemyPawn != None)
     {
-        EnemyPawn.Destroy();
+		//EnemyPawn.Suicide();
+		EnemyPawn.Acceleration.X = 0;
+		EnemyPawn.Acceleration.Y = 0;
+		EnemyPawn.Acceleration.Z = 0;
+		EnemyPawn.TakeDamage(10000, self, EnemyPawn.Location, Vect(0,0,0), class'UTDmgType_Fire');
+        //EnemyPawn.Destroy();
     }
+
+	SetTimer(2.0, false, 'showPlayer');
+}
+
+function showPlayer()
+{
+	//Reference to player's light
+	local PointLightComponent HeroLight;
 
     OldPawn.SetHidden(FALSE);
     OldPawn.SetCollisionType(COLLIDE_BlockAll);
@@ -441,6 +451,7 @@ event PlayerTick (float DeltaTime)
 	{
 		PosMiniGameMovie.tick();
 	}
+	//WorldInfo.Game.Broadcast(self, Pawn.Location);
 	super.PlayerTick(DeltaTime);
 }
 
