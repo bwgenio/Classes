@@ -5,6 +5,6 @@ defaultproperties
 {
 	ObjName="Chess game ending"
 	ObjCategory="PR0"
-	bPlayerOnly = true
+	//bPlayerOnly = true
 	MaxTriggerCount = 0
 }

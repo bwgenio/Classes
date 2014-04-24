@@ -27,9 +27,9 @@ DefaultProperties
 {
 	defaultAnimSet(0) = AnimSet'PRAsset.EnemyGoblin.EnemyGoblinAnims'
 	DeathSoundCue = SoundCue'PRAsset.EnemySFX.Goblin_death1_Cue'
-	SuspicionDistance = 700
-	HostileDistance = 350
+	SuspicionDistance = 800
+	HostileDistance = 400
 	MaxFireDistance = 150
 	ChaseTimer = 3
-	AlertnessIncrement = 5
+	AlertnessIncrement = 8
 }

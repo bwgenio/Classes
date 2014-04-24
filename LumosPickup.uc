@@ -39,5 +39,6 @@ DefaultProperties
 	YawRotationRate = 32000
 
 	bIsRespawning = false
+	RespawnTime = 10000
 	MessageClass = none
 }

@@ -39,7 +39,6 @@ function ModifyLightIntensity()
 
 	foreach Pawn.Mesh.AttachedComponents(class'PointLightComponent', HeroLight)
 	{
-
 		//Dim the light when descending or brigtness points is zero
 		if(Illuminating == FALSE || LuminosityPoints <= 0)
 		{
@@ -51,9 +50,7 @@ function ModifyLightIntensity()
 			HeroLight.Radius = Min(HeroLight.Radius + LightGrowRate, MaxLightRange);
 			LuminosityPoints -= 10;
 		}
-
 	}
-
 }
 
 function IncreaseLuminosityPoints()
@@ -145,7 +142,7 @@ exec function Actor GetPossessionTarget()
 	//Force the Y-position to be zero
 	CursorLocation.Y = 0;
 	out_Location.Y = 0;
-	DrawDebugSphere(CursorLocation, 50, 10, 0, 255, 0, true);
+	//DrawDebugSphere(CursorLocation, 50, 10, 0, 255, 0, true);
 
 	/** The following codes are used to determine the exact line which possession should be applied
 	 *  The steps are as follows:
@@ -153,11 +150,11 @@ exec function Actor GetPossessionTarget()
 	 *  2. Normalize that line, so the length of that line is 1
 	 *  3. Multiply by PossessionRange, giving us a line with exact length that we want*/
 	PossessionLine = CursorLocation - out_Location;
-	DrawDebugLine(out_Location, CursorLocation, 0, 255, 0, true);
+	//DrawDebugLine(out_Location, CursorLocation, 0, 255, 0, true);
 
 	CursorLocation = out_Location + (PossessionLine * PossessionRange) / VSize(PossessionLine);
-	DrawDebugLine(out_location,CursorLocation,255,0,0,true);
-	DrawDebugSphere(CursorLocation, 50, 100, 255,0,0,true);
+	//DrawDebugLine(out_location,CursorLocation,255,0,0,true);
+	//DrawDebugSphere(CursorLocation, 50, 100, 255,0,0,true);
 
 	//HitActor = Trace(HitLocation, HitNormal, CursorLocation, out_Location, true);
 	foreach TraceActors(class'PR0Pawn', HitActor, HitLocation, HitNormal, CursorLocation, out_Location)
@@ -251,7 +248,7 @@ function StartChessGame(SeqAction_StartChess myAction)
 function EndChessGame()
 {
 	//Trigger door opening
-	TriggerEventClass(class'SeqEvent_EndChess', self);
+	Pawn.TriggerEventClass(class'SeqEvent_EndChess', self);
 }
 
 //Possesses a different pawn
@@ -499,7 +496,7 @@ DefaultProperties
 	MouseY=0
 	MouseX=0
 	InputClass=class'PR0.PR0PlayerInput'
-	SupportedEvents.Add(class'SeqEvent_TriggerAlarm')
+	SupportedEvents.Add(class'SeqEvent_EndChess')
 	defaultMesh=SkeletalMesh'CH_IronGuard_Male.Mesh.SK_CH_IronGuard_MaleA';
 	defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human';
 	defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale';

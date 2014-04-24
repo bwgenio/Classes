@@ -24,7 +24,7 @@ simulated event PreBeginPlay()
 	HeroLight = new(self)class'PointLightComponent';
 	HeroLight.SetLightProperties(5,LightColor);
 	HeroLight.Radius = 100;
-	Mesh.AttachComponent(HeroLight, 'HatTip');
+	Mesh.AttachComponent(HeroLight, 'joint5');
 }
 
 simulated event PostBeginPlay()
@@ -59,13 +59,16 @@ simulated event PlayDying(class<DamageType> DamageType, vector HitLocation)
 
 	// Play player death particle effect
 	WorldInfo.MyEmitterPool.SpawnEmitter(PS, Location);
+
+	// Play death sound
+	PlaySound(SoundCue'PRAsset.Music.GameOverBeat_Cue');
 	
 	// Make the player mesh disappear
 	PR0PlayerController(Controller).IgnoreMoveInput(true);
 	SetInvisible(true);
 	Mesh.SetSkeletalMesh(none);
 
-	SetTimer(2, false, 'playDyingFlash');
+	SetTimer(2.5, false, 'playDyingFlash');
 }
 
 function playDyingFlash()
@@ -105,7 +108,7 @@ simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
 	//Mesh.SetTranslation(TranslationVector);
 	////Mesh.SetScale(0.5);
 	super.SetCharacterClassFromInfo(class'PR0.PR0FamilyInfo_Ghost');
-	Mesh.SetAnimTreeTemplate(AnimTree'PlayerCharacter.MageAnimTree');
+	//Mesh.SetAnimTreeTemplate(AnimTree'PlayerCharacter.MageAnimTree');
 }
 
 DefaultProperties
@@ -136,9 +139,6 @@ DefaultProperties
 	//CylinderComponent=CollisionCylinder
 	//Components.Add(CollisionCylinder)
 
-	//defaultMesh=SkeletalMesh'PlayerCharacter.Mesh.Mage'
-	//defaultAnimTree=AnimTree'PlayerCharacter.MageAnimTree'
-	//defaultAnimSet(0)=AnimSet'PlayerCharacter.Anims.MageAnims'
-
 	TranslationOffset = -200
+	SupportedEvents.Add(class'SeqEvent_EndChess')
 }

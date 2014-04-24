@@ -87,7 +87,10 @@ event PostRender()
 	super.PostRender();
 }
 
-
+function DisplayLocalMessages()
+{
+	//STUB to prevent local messages
+}
 
 //toggles the pause menu
 //calls on Esc
@@ -108,6 +111,10 @@ exec function TogglePauseMenu()
 		Movie = new class'GFxPauseMenu';
 		//Movie.SetAlignment(Align_TopLeft);
 		PauseMenuMovie = Movie;
+
+		// Play Parchment sound effect
+		PlaySound(SoundCue'PRAsset.Music.Paper_Rustle_Cue');
+
 		Movie.Begin();
 		PR0PlayerController(GetALocalPlayerController()).SetPause(true);
     }

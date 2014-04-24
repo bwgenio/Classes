@@ -17,5 +17,5 @@ DefaultProperties
 	HostileDistance = 400
 	MaxFireDistance = 150
 	ChaseTimer = 3
-	AlertnessIncrement = 1
+	AlertnessIncrement = 3
 }

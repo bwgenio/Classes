@@ -19,4 +19,8 @@ DefaultProperties
 	bUseClassicHUD = true
 	bDelayedStart = false
 	bRestartLevel = false
+	MessageClass = none
+	GameMessageClass = none
+	DeathMessageClass = none
+	VictoryMessageClass = none
 }

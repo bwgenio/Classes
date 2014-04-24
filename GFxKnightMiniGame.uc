@@ -39,6 +39,7 @@ function isOver(bool isWinning)
 		//Activate Kismet event to open the door
 		PR0PlayerController(GetPC()).EndChessGame();
 	}
+	Close();
 }
 
 defaultproperties
