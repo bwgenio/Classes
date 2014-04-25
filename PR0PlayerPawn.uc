@@ -61,6 +61,7 @@ simulated event PlayDying(class<DamageType> DamageType, vector HitLocation)
 	WorldInfo.MyEmitterPool.SpawnEmitter(PS, Location);
 
 	// Play death sound
+	PlaySound(SoundCue'PRAsset.SFX.Player_Killed_Cue');
 	PlaySound(SoundCue'PRAsset.Music.GameOverBeat_Cue');
 	
 	// Make the player mesh disappear

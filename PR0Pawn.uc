@@ -131,7 +131,7 @@ simulated event PlayDying(class<DamageType> DamageType, Vector HitLocation)
 	DmgType = DamageType;
 	HitLoc = HitLocation;
 
-	SetTimer(2.0, false, 'destroyPawn');
+	SetTimer(1.8, false, 'destroyPawn');
 }
 
 function destroyPawn()

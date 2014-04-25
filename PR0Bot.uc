@@ -237,6 +237,11 @@ Begin:
 		MoveToward(EndNode, EndNode, 50);
 		Sleep(5);
 	}
+	else if (StartNode != none)
+	{
+		MoveToward(StartNode, StartNode, 50);
+		Sleep(5);
+	}
 	else
 	{
 		GotoState('Idle');
