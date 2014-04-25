@@ -5,7 +5,6 @@ var float MouseX;
 var float MouseY;
 var float CurrentMouseY;
 var float CurrentMouseX;
-var bool MouseVisible;
 
 //Create a Health Cache variable
 var float LastHealthpc;
@@ -87,7 +86,7 @@ function TickHUD()
 		return;
 	}
 
-	if(PR0PlayerController(GetPC()).PlayerInput.bUsingGamepad == true && MouseVisible)
+	if(PR0PlayerController(GetPC()).PlayerInput.bUsingGamepad == true)
 	{
 		CurrentMouseY = CurrentMouseY + PR0PlayerController(GetPC()).returnMouseY();
 		CurrentMouseX = CurrentMouseX + PR0PlayerController(GetPC()).returnMouseX();
@@ -248,31 +247,6 @@ function gotoFrame(int DangerLevel)
 }
 
 /**
- * Displays the Tutorial Messages. 
- * Gets Called by TutDisplay in PC, when that is called by the kismet triggers.
- * Increases by one for now.
- */
-function TutDisplay()
-{
-
-	local string frame;
-	CurrentTutorialMessage = CurrentTutorialMessage + 1;
-	frame = string(CurrentTutorialMessage);
-	Tut_Text.gotoAndStop(frame);
-
-	if(CurrentTutorialMessage == 3 || CurrentTutorialMessage == 4)
-	{
-		Cursor.SetBool("bCaptureMouse", true);
-	}
-	else
-	{
-		RootMC.SetBool("bCaptureKeyboard", true);
-	}
-	
-	bCaptureInput = true;
-}
-
-/**
  * Checks whether the proper key was pressed for each required tutorial message
  * allows the player to proceed only if the proper key is pressed
  */
@@ -337,7 +311,6 @@ DefaultProperties
 	//this is the HUD. If the HUD is off, then this should be off
 	CurrentDangerLevel=0
 	CurrentTutorialMessage = 1
-	MouseVisible = true
 	bCaptureInput = false
 	bDisplayWithHudOff=false
 	MovieInfo = swfMovie'PRAsset.HUD.PR-HUD'

@@ -14,7 +14,7 @@ DefaultProperties
 	defaultAnimSet(0) = AnimSet'PRAsset.EnemyGoblin.EnemyGoblinAnims'
 	DeathSoundCue = SoundCue'PRAsset.EnemySFX.Orc_death1_Cue'
 	SuspicionDistance = 800
-	HostileDistance = 400
+	HostileDistance = 500
 	MaxFireDistance = 150
 	ChaseTimer = 3
 	AlertnessIncrement = 3

@@ -18,6 +18,8 @@ var(Ability) int LuminosityPoints;
 var editconst Pawn PawnToPossess;
 //Possession MiniGame Movie
 var GFxPosMiniGame PosMiniGameMovie;
+//Knights tour movie
+var GFxKnightMiniGame KnightMiniGameMovie;
 //holds the xbox values for the cursor
 var float MouseY;
 var float MouseX;
@@ -105,14 +107,6 @@ function bool IsCursorOnEnemy()
 	{
 		return False;
 	}
-}
-
-//gets called by kismet when trigger is touched
-//calls the function to display the tutorial messages from GfxHud
-exec function TutDisplay()
-{
-	//GotoState('PlayerWaiting');
-	PR0HUDGfx(myHUD).HudMovie.TutDisplay();
 }
 
 exec function Actor GetPossessionTarget()
@@ -243,11 +237,13 @@ function StartChessGame(SeqAction_StartChess myAction)
 
 	Movie = new class'GFxKnightMiniGame';
 	Movie.begin(level);
+	KnightMiniGameMovie = movie;
 }
 
 function EndChessGame()
 {
 	//Trigger door opening
+	KnightMiniGameMovie = none;
 	Pawn.TriggerEventClass(class'SeqEvent_EndChess', self);
 }
 
@@ -446,8 +442,17 @@ event PlayerTick (float DeltaTime)
 	MouseX = PlayerInput.aTurn * 25;
 	if(PosMiniGameMovie != none)
 	{
+		MouseY = PlayerInput.aLookUp * 25;
+		MouseX = PlayerInput.aTurn * 25;
 		PosMiniGameMovie.tick();
 	}
+	if(KnightMiniGameMovie != none)
+	{
+		MouseY = PlayerInput.aLookUp * 25;
+		MouseX = PlayerInput.aTurn * 25;
+		KnightMiniGameMovie.tick();
+	}
+
 	//WorldInfo.Game.Broadcast(self, Pawn.Location);
 	super.PlayerTick(DeltaTime);
 }
@@ -480,6 +485,7 @@ DefaultProperties
 {
 	bIsPlayer = true
 	PosMiniGameMovie = none
+	KnightMiniGameMovie = none
 	//PlayerReplicationInfo =  class'PR0.PR0PlayerReplicationInfo'
 	bForceBehindView = false
 	Possessed = false
